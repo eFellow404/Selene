@@ -18,6 +18,34 @@ proc parseLine(line: string): string =
                 return codePart & " <!-- " & commentPart & " -->"
             else:
                 return "<!-- " & commentPart & " -->"
+
+    if trimmedLine.startsWith("Btn"): # <button> tags
+        let ButtonTrim = trimmedLine[3..^1].strip()
+
+        # Default values
+        var buttonSource = ""
+        var buttonLinkText = ""
+
+        # Check if "source:" exists in the line
+        if ButtonTrim.contains("source:") and ButtonTrim.contains("link:"):
+            # Find positions of "source:" and "link:"
+            let sourcePos = ButtonTrim.find("source:") + len("source:")
+            let linkPos = ButtonTrim.find("link:")
+
+            # Extract the text between source: and link:
+            buttonSource = ButtonTrim[sourcePos ..< linkPos].strip()
+
+            # Extract the text after link:
+            buttonLinkText = ButtonTrim[linkPos + len("link:") .. ^1].strip()
+
+            # Build the HTML
+            return "<button> <a href=\"" & buttonSource & "\">" & buttonLinkText & "</a> </button>"
+
+        else:
+            # Just a simple button with no link
+            return "<button>" & ButtonTrim & "</button>"
+
+
     
     if trimmedLine.startsWith("-bd"): # </body> tag
         return "</body>"
