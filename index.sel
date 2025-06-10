@@ -1,9 +1,7 @@
-
-link.css: index.css
-
 class: bg-light w-100 h-100 flex flex-center; bd
 class: bg-white p-3 border-round w-50; div: Hello, this is a white box in the center of a black page!
 !div
+class: text-xl text-red; div: hi; 
 
 exit html
 
