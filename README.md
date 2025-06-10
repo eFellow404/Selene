@@ -1,4 +1,5 @@
 This is a template engine that you can use to create websites with
+To run it install nim on your machina and run sudo r compiler.nim in the same folder as your index.sel file
 
 it is divided into sections. currently there are only 2, HTML and CSS (I plan to add JS later)
 
