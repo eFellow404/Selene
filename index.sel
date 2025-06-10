@@ -1,59 +1,13 @@
 
-Btn; + hi
+link.css: index.css
 
-Btn; source: index.html; text: my new website;
+class: bg-light w-100 h-100 flex flex-center; bd
+class: bg-white p-3 border-round w-50; div: Hello, this is a white box in the center of a black page!
+!div
 
-class: picture; source: index.html; text: hi
+exit html
 
-- ; source: index.html; text: hi;
+load preset
 
-- ; Btn; source: index.html; text: hi guys;
-
-- ; Btn; source: index.html; img: butt.jpg;
-
-link.css: styles.css;
-
-link.icon: img/boob.png;
-
-link.script: index.js;
-
-class: boobies; Btn; class: boobs; title: my webpage;
-
-hd; !hd;
-
-class: penis; img: index; hd;
-
-!hd-;
-
-class: butt pics; img: butt.png;
-
-class: button; Btn; img: boobs; 
-
-class: experiment; - ;
-
-class: body; bd; !bd;
-
-hrd;
-
-!hrd;
-
-class: navbar; nav;
-
-class: test; !nav;
-
-class: box; div: ;
-
-class: BOLD; h1: hi;
-class: BOLD; h2: hi;
-class: BOLD; h3: hi;
-class: BOLD; h4: hi;
-class: BOLD; h5: hi;
-class: BOLD; h6: hi;
-
-class: text; p: content;
-
-class: box-container; /div;
-!div;
-exit html;
-
-div: hi;
+.bg-black { background-color: black; color: white; }
+.h-100 { height: 100vh; }

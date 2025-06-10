@@ -2,7 +2,98 @@ import os, strutils, sequtils
 
 let inputFile = "index.sel"
 let outputFile = "index.html"
+let outputFileCss = "index.css"
 var htmlMode = true
+var cssModeStarted = false 
+
+proc CssParser(line: string): string =
+    var result = ""
+
+    # If this is the first CSS line, mark that CSS mode has started
+    if not cssModeStarted:
+        cssModeStarted = true
+
+    if line != "load preset":
+        # Add the current line exactly as it was
+        result &= line & "\n"
+        return result
+
+    if line == "load preset":
+        echo "preset loaded"
+        result &= line & """
+/* === PRESET CSS CLASSES === */
+
+/* Text sizes */
+.text-small    { font-size: 0.8rem; }
+.text-normal   { font-size: 1rem; }
+.text-large    { font-size: 1.5rem; }
+.text-xl       { font-size: 2rem; }
+
+/* Text styles */
+.text-bold     { font-weight: bold; }
+.text-italic   { font-style: italic; }
+.text-center   { text-align: center; }
+.text-left     { text-align: left; }
+.text-right    { text-align: right; }
+
+/* Colors */
+.text-black  { color: #000000; }
+.text-grey{ color: #777777; }
+.text-blue   { color: #007BFF; }
+.text-red   { color: #FF4136; }
+.text-green  { color: #2ECC40; }
+.text-white  { color: #FFFFFF; }
+
+/* Backgrounds */
+.bg-light      { background-color: #f9f9f9; }
+.bg-dark       { background-color: darkgrey; color: white; }
+.bg-primary    { background-color: #007BFF; color: white; }
+.bg-success    { background-color: #2ECC40; color: white; }
+.bg-danger     { background-color: #FF4136; color: white; }
+
+/* Borders */
+.border        { border: 1px solid #ccc; padding: 0.5rem; }
+.border-round  { border-radius: 0.5rem; border: 1px solid #ccc; padding: 0.5rem; }
+.no-border     { border: none; }
+
+/* Padding & Margin */
+.p-1           { padding: 0.5rem; }
+.p-2           { padding: 1rem; }
+.p-3           { padding: 1.5rem; }
+
+.m-1           { margin: 0.5rem; }
+.m-2           { margin: 1rem; }
+.m-3           { margin: 1.5rem; }
+
+/* Display */
+.inline        { display: inline; }
+.block         { display: block; }
+.flex          { display: flex; }
+.flex-center   { display: flex; justify-content: center; align-items: center; }
+.hidden        { display: none; }
+
+/* Widths */
+.w-100         { width: 100%; }
+.w-50          { width: 50%; }
+.w-auto        { width: auto; }
+
+/* Buttons */
+.btn           { display: inline-block; padding: 0.5rem 1rem; font-size: 1rem; border: none; border-radius: 0.3rem; cursor: pointer; text-align: center; }
+.btn-primary   { background-color: #007BFF; color: white; }
+.btn-success   { background-color: #2ECC40; color: white; }
+.btn-danger    { background-color: #FF4136; color: white; }
+.btn-outline   { background-color: transparent; border: 2px solid #007BFF; color: #007BFF; }
+
+/* Images */
+.img-responsive { max-width: 100%; height: auto; }
+
+/* === END PRESET === */
+"""
+        return result
+
+
+
+
 
 proc parseLine(line: string): string =
     let commands = line.split(';').mapIt(it.strip())
@@ -219,11 +310,6 @@ proc parseLine(line: string): string =
             echo "LinkEndPos = ", LinkEndPos
             results[LinkEndPos] &= "</li>"
 
-        # for the loading preset of the css styles
-
-        elif cmd.startsWith("load presets;"):
-            results[index] &= ""
-
         # debug
         echo "Command #" & $(index+1) & ": " & cmd
 
@@ -237,22 +323,30 @@ proc main() =
         return
 
     var outputLines = newSeq[string]()
+    var outputLinesCss = newSeq[string]()
 
     for line in lines(inputFile):
-        if not htmlMode:
-            break   # Stop processing further lines
-        
-        let htmlLine = parseLine(line)
-        outputLines.add(htmlLine)
+        if htmlMode:
+            let htmlLine = parseLine(line)
+            outputLines.add(htmlLine)
+            
+        else:
+            let cssLine = CssParser(line)
+            outputLinesCss.add(cssLine)
 
+    # Insert default CSS link at top (or we can do it smarter later)
+    let cssLinkTag = "<link href=\"index.css\" rel=\"stylesheet\" type=\"text/css\">"
+    outputLines.insert(cssLinkTag, 0)
 
     # Join all lines with newlines and write to output file
     writeFile(outputFile, join(outputLines, "\n"))
     echo "Written output to ", outputFile
 
+    writeFile(outputFileCss, join(outputLinesCss, "\n"))
+    echo "Written output to ", outputFileCss
+
+
+
 
 if htmlMode:
     main()
-
-
-

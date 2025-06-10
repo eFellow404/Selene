@@ -1,0 +1,75 @@
+
+
+load preset/* === PRESET CSS CLASSES === */
+
+/* Text sizes */
+.text-small    { font-size: 0.8rem; }
+.text-normal   { font-size: 1rem; }
+.text-large    { font-size: 1.5rem; }
+.text-xl       { font-size: 2rem; }
+
+/* Text styles */
+.text-bold     { font-weight: bold; }
+.text-italic   { font-style: italic; }
+.text-center   { text-align: center; }
+.text-left     { text-align: left; }
+.text-right    { text-align: right; }
+
+/* Colors */
+.text-black  { color: #000000; }
+.text-grey{ color: #777777; }
+.text-blue   { color: #007BFF; }
+.text-red   { color: #FF4136; }
+.text-green  { color: #2ECC40; }
+.text-white  { color: #FFFFFF; }
+
+/* Backgrounds */
+.bg-light      { background-color: #f9f9f9; }
+.bg-dark       { background-color: darkgrey; color: white; }
+.bg-primary    { background-color: #007BFF; color: white; }
+.bg-success    { background-color: #2ECC40; color: white; }
+.bg-danger     { background-color: #FF4136; color: white; }
+
+/* Borders */
+.border        { border: 1px solid #ccc; padding: 0.5rem; }
+.border-round  { border-radius: 0.5rem; border: 1px solid #ccc; padding: 0.5rem; }
+.no-border     { border: none; }
+
+/* Padding & Margin */
+.p-1           { padding: 0.5rem; }
+.p-2           { padding: 1rem; }
+.p-3           { padding: 1.5rem; }
+
+.m-1           { margin: 0.5rem; }
+.m-2           { margin: 1rem; }
+.m-3           { margin: 1.5rem; }
+
+/* Display */
+.inline        { display: inline; }
+.block         { display: block; }
+.flex          { display: flex; }
+.flex-center   { display: flex; justify-content: center; align-items: center; }
+.hidden        { display: none; }
+
+/* Widths */
+.w-100         { width: 100%; }
+.w-50          { width: 50%; }
+.w-auto        { width: auto; }
+
+/* Buttons */
+.btn           { display: inline-block; padding: 0.5rem 1rem; font-size: 1rem; border: none; border-radius: 0.3rem; cursor: pointer; text-align: center; }
+.btn-primary   { background-color: #007BFF; color: white; }
+.btn-success   { background-color: #2ECC40; color: white; }
+.btn-danger    { background-color: #FF4136; color: white; }
+.btn-outline   { background-color: transparent; border: 2px solid #007BFF; color: #007BFF; }
+
+/* Images */
+.img-responsive { max-width: 100%; height: auto; }
+
+/* === END PRESET === */
+
+
+
+.bg-black { background-color: black; color: white; }
+
+.h-100 { height: 100vh; }
