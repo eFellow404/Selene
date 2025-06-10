@@ -1,155 +1,258 @@
-import os, strutils
+import os, strutils, sequtils
 
 let inputFile = "index.sel"
 let outputFile = "index.html"
+var htmlMode = true
 
 proc parseLine(line: string): string =
-  let commands = line.split(';')
-  var result = ""
+    let commands = line.split(';').mapIt(it.strip())
+    var results = newSeq[string](100)   # Force 100 slots to be safe
+    var ClassPos = 0
+    var CssClass = ""
 
-  # Button state
-  var inButton = false
-  var buttonSource = ""
-  var buttonLinkText = ""
-  var ButtonText = ""
-  var SourceFound = false
-  var LinkFound = false
-  var inListItem = false
-  var addListEnder = false
+    for i in 0 ..< results.len:
+        results[i] = ""  # Initialize all to empty string
 
-  for cmd in commands:
-    let trimmedLine = cmd.strip()
+    for index, cmd in commands:
+        if cmd.len == 0:
+            continue
 
-    if trimmedLine.len == 0:
-      continue  # Skip empty parts
+        # exitiing html mode
 
-    if trimmedLine.startsWith("-("):
-      inListItem = true
-      result &= "<li>"
-      continue
+        elif cmd.startsWith("exit html"):
+            htmlMode = false
+            return
 
-    if trimmedLine.startsWith(")-"):
-      inListItem = false
-      addListEnder = true
-      echo "this has worked"
-      continue
+        #class linker
 
-    if trimmedLine.contains("Btn"):
-      # Start button mode
-      inButton = true
-      buttonSource = ""
-      buttonLinkText = ""
-      ButtonText = ""
-      SourceFound = false
-      LinkFound = false
-      continue
+        elif cmd.startsWith("class:"):
+            CssClass = cmd[6..^1].strip()
+            ClassPos = index 
+            echo CssClass
 
-    if inButton:
-      if trimmedLine.startsWith("source:"):
-        buttonSource = trimmedLine[7..^1].strip()
-        SourceFound = true
-        continue
-      elif trimmedLine.startsWith("link:"):
-        buttonLinkText = trimmedLine[5..^1].strip()
-        LinkFound = true
-        continue
-      elif trimmedLine.len > 0:
-        # If not source: or link:, treat as button text
-        ButtonText = trimmedLine
-        # Now close the button
-        if SourceFound and LinkFound:
+        #closing tags
 
-          result &= "<button><a href=\"" & buttonSource & "\">" & buttonLinkText & "</a></button>"
-          continue
-        else:
-          result &= "<button>" & ButtonText & "</button>"
-        inButton = false
-        continue
+        elif cmd.startsWith("!hd"):
+            results[index] &= "</head>"
 
-    # Normal command handling
-    let firstHash = trimmedLine.find('#')
-    if firstHash >= 0:
-      let secondHash = trimmedLine.find('#', firstHash + 1)
-      if secondHash > firstHash:
-        let codePart = trimmedLine[0 ..< firstHash].strip()
-        let commentPart = trimmedLine[(firstHash + 1) ..< secondHash].strip()
-        if codePart.len > 0:
-          result &= codePart & " <!-- " & commentPart & " -->"
-        else:
-          result &= "<!-- " & commentPart & " -->"
-        continue
+        elif cmd.startsWith("!bd"):
+            results[index] &= "</body>"
 
-    if trimmedLine.contains("source: ") and trimmedLine.contains("link: "):
-      let linkLineIndex = trimmedLine.find("link: ")
-      let linkTextStartPos = linkLineIndex + "link: ".len
+        elif cmd.startsWith("!hrd"):
+            results[index] &= "</header>"
 
-      var linkText = ""
-      if linkTextStartPos < trimmedLine.len and trimmedLine[linkTextStartPos] == '+':
-        linkText = ""
-      else:
-        linkText = trimmedLine[linkTextStartPos..^1]
+        elif cmd.startsWith("!nav"):
+            results[index] &= "</nav>"
 
-      let sourceLineIndex = trimmedLine.find("source: ")
-      let sourceStartPos = sourceLineIndex + "source: ".len
-      let sourceOutput = trimmedLine[sourceStartPos..linkLineIndex - 1]
+        elif cmd.startsWith("!div"):
+            results[index] &= "</div>"
 
-      result &= "<a href=\"" & sourceOutput & "\">" & linkText & "</a>"
-      continue
+        # linking at the top of the document
 
-    if trimmedLine.startsWith("-bd"):
-      result &= "</body>"
-      continue
+        elif cmd.startsWith("link.css:"):
+            let linkcssText = cmd[9..^1].strip()
+            results[index] &= "<link href=\"" & linkcssText & "\" rel=\"stylesheet\" type=\"text/css\">"
 
-    if trimmedLine.startsWith("bd"):
-      result &= "<body>" & trimmedLine[2..^1].strip()
-      continue
+        elif cmd.startsWith("link.icon:"):
+            let linkiconText = cmd[10..^1].strip()
+            results[index] &= "<link href=\"" & linkiconText & "\" rel=\"icon\">"
 
-    if trimmedLine.startsWith("hd"):
-      result &= "<head>" & trimmedLine[2..^1].strip()
-      continue
+        elif cmd.startsWith("link.script:"):
+            let linkJSText = cmd[12..^1].strip()
+            results[index] &= "<script src=\"" & linkJSText & "\" defer></script>"
+        
+        # Normal command processing
 
-    if trimmedLine.startsWith("-hd"):
-      result &= "</head>" & trimmedLine[2..^1].strip()
-      continue
+        elif cmd.startsWith("/div"):
+            if ClassPos != index - 1:
+                CssClass = ""
 
-    if trimmedLine.startsWith("type: "):
-      result &= "<!DOCTYPE " & trimmedLine[6..^1].strip() & ">"
-      continue
+            results[index] &= "<div class=\"" & CssClass & "\">"
 
-    if trimmedLine.startsWith("+"):
-      result &= trimmedLine[1..^1]
-      continue
+        elif cmd.startsWith("nav"):
+            if ClassPos != index - 1:
+                CssClass = ""
 
-    if trimmedLine.startsWith("h1"):
-      result &= "<h1>" & trimmedLine[1..^1].strip() & "</h1>"
-      continue
+            results[index] &= "<nav class=\"" & CssClass & "\">"
 
-    if trimmedLine.startsWith(")-"):
-      result &= "</li>"
-      continue
+        elif cmd.startsWith("bd"):
+            if ClassPos != index - 1:
+                CssClass = ""
 
-    echo addListEnder
+            results[index] &= "<body class=\"" & CssClass & "\">"
 
-    # Otherwise, treat as paragraph
-    result &= "<p>" & trimmedLine & "</p>"
+        elif cmd.startsWith("hd"):
+            if ClassPos != index - 1:
+                CssClass = ""
 
-  return result
+            results[index] &= "<head class=\"" & CssClass & "\">"
+
+        elif cmd.startsWith("hrd"):
+            if ClassPos != index - 1:
+                CssClass = ""
+
+            results[index] &= "<header class=\"" & CssClass & "\">"
+
+        elif cmd.startsWith("text:"):
+            let textText = cmd[5..^1].strip()
+            results[index] &= textText
+
+
+        elif cmd.startsWith("img:"):
+            let imgSrc = cmd[4..^1].strip()
+            if ClassPos != index - 1:
+                CssClass = ""
+            results[index] &= "<img src=\"" & imgSrc & "\" class=\"" & CssClass & "\">"
+
+        elif cmd.startsWith("+"):
+            results[index] &= cmd[1..^1]
+        
+        # now onto the freaky ones (they need closing tags)
+
+        # firstly just the h1-6
+
+        elif cmd.startsWith("h1:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[4..^1].strip()
+            results[index] &= "<h1 class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</h1>"
+
+        elif cmd.startsWith("h2:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[4..^1].strip()
+            results[index] &= "<h2 class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</h2>"
+
+        elif cmd.startsWith("h3:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[4..^1].strip()
+            results[index] &= "<h3 class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</h3>"
+
+        elif cmd.startsWith("h4:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[4..^1].strip()
+            results[index] &= "<h4 class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</h4>"
+
+        elif cmd.startsWith("h5:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[4..^1].strip()
+            results[index] &= "<h5 class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</h5>"
+
+        elif cmd.startsWith("h6:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[4..^1].strip()
+            results[index] &= "<h6 class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</h6>"
+
+        #now the rest
+
+        elif cmd.startsWith("p:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[2..^1].strip()
+            results[index] &= "<p class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</p>"
+
+        elif cmd.startsWith("div:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let content = cmd[4..^1].strip()
+            results[index] &= "<div class =\"" & CssClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</div>"
+
+        elif cmd.startsWith("title:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let title = cmd[6..^1].strip()
+            results[index] &= "<title class=\"" & CssClass & "\">" & title
+            let titleEndPos = results.len - index - 1 # Use correct formula
+            echo "titleEndPos = ", titleEndPos
+            results[titleEndPos] &= "</title>"
+
+        elif cmd.startsWith("source:"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            let source = cmd[7..^1].strip()
+            results[index] &= "<a href=\"" & source & "\" class =\"" & CssClass & "\">"
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</a>"
+
+        elif cmd.startsWith("Btn"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            results[index] &= "<button class=\"" & CssClass & "\">"
+            let ButtonEndPos = results.len - index - 1 # Use correct formula
+            echo "ButtonEndPos = ", ButtonEndPos
+            results[ButtonEndPos] &= "</button>"
+
+        elif cmd.startsWith("-"):
+            if ClassPos != index - 1:
+                CssClass = ""
+            results[index] &= "<li class=\"" & CssClass & "\">"
+            let LinkEndPos = results.len - index - 1 # Use correct formula
+            echo "LinkEndPos = ", LinkEndPos
+            results[LinkEndPos] &= "</li>"
+
+        # for the loading preset of the css styles
+
+        elif cmd.startsWith("load presets;"):
+            results[index] &= ""
+
+        # debug
+        echo "Command #" & $(index+1) & ": " & cmd
+
+
+    # Join all results in order (but only for real slots)
+    return results.join("")
 
 proc main() =
-  if not fileExists(inputFile):
-    echo "Input file not found: ", inputFile
-    return
+    if not fileExists(inputFile):
+        echo "Input file not found: ", inputFile
+        return
 
-  var outputLines = newSeq[string]()
+    var outputLines = newSeq[string]()
 
-  for line in lines(inputFile):
-    let htmlLine = parseLine(line)
-    outputLines.add(htmlLine)
+    for line in lines(inputFile):
+        if not htmlMode:
+            break   # Stop processing further lines
+        
+        let htmlLine = parseLine(line)
+        outputLines.add(htmlLine)
 
-  # Join all lines with newlines and write to output file
-  writeFile(outputFile, join(outputLines, "\n"))
-  echo "Written output to ", outputFile
 
-main()
+    # Join all lines with newlines and write to output file
+    writeFile(outputFile, join(outputLines, "\n"))
+    echo "Written output to ", outputFile
+
+
+if htmlMode:
+    main()
+
 
 
