@@ -294,7 +294,7 @@ proc parseLine(line: string): string =
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</a>"
 
-        elif cmd.startsWith("Btn"):
+        elif cmd.startsWith("btn"):
             if ClassPos != index - 1:
                 CssClass = ""
             results[index] &= "<button class=\"" & CssClass & "\">"
