@@ -7,6 +7,7 @@ Here are the commands and what they output when interpreted
 HTML commands:
 
 All commmands are seperated with a semicolon ; and inputs within commands are prefaced with a colon :
+indentation or spaces do not matter as blank space to the left or right of the command is removed before proccessing
 
 class: ClassName; -- >
 Doesn't do anything on its own but adds a class to something infront of it e.g class: container; div: content; becomes `<div class ="container"></div>`
