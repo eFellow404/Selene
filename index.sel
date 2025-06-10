@@ -14,3 +14,10 @@ hd
 -hd
 
 Btn source: index.html link: yoo wsgS
+source: index.html link: +
+    Btn; source: index.html; link: hi there
+-(; Btn; hi; )-;
+
+    -(; Btn; source: index.html; link: my New Website; a;
+
+-(; hi; )-;

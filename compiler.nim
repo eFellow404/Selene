@@ -4,79 +4,136 @@ let inputFile = "index.sel"
 let outputFile = "index.html"
 
 proc parseLine(line: string): string =
-    let trimmedLine = line.strip()
+  let commands = line.split(';')
+  var result = ""
 
+  # Button state
+  var inButton = false
+  var buttonSource = ""
+  var buttonLinkText = ""
+  var ButtonText = ""
+  var SourceFound = false
+  var LinkFound = false
+  var inListItem = false
+  var addListEnder = false
+
+  for cmd in commands:
+    let trimmedLine = cmd.strip()
+
+    if trimmedLine.len == 0:
+      continue  # Skip empty parts
+
+    if trimmedLine.startsWith("-("):
+      inListItem = true
+      result &= "<li>"
+      continue
+
+    if trimmedLine.startsWith(")-"):
+      inListItem = false
+      addListEnder = true
+      echo "this has worked"
+      continue
+
+    if trimmedLine.contains("Btn"):
+      # Start button mode
+      inButton = true
+      buttonSource = ""
+      buttonLinkText = ""
+      ButtonText = ""
+      SourceFound = false
+      LinkFound = false
+      continue
+
+    if inButton:
+      if trimmedLine.startsWith("source:"):
+        buttonSource = trimmedLine[7..^1].strip()
+        SourceFound = true
+        continue
+      elif trimmedLine.startsWith("link:"):
+        buttonLinkText = trimmedLine[5..^1].strip()
+        LinkFound = true
+        continue
+      elif trimmedLine.len > 0:
+        # If not source: or link:, treat as button text
+        ButtonText = trimmedLine
+        # Now close the button
+        if SourceFound and LinkFound:
+
+          result &= "<button><a href=\"" & buttonSource & "\">" & buttonLinkText & "</a></button>"
+          continue
+        else:
+          result &= "<button>" & ButtonText & "</button>"
+        inButton = false
+        continue
+
+    # Normal command handling
     let firstHash = trimmedLine.find('#')
     if firstHash >= 0:
-        let secondHash = trimmedLine.find('#', firstHash + 1)
-        if secondHash > firstHash:
-            let codePart = trimmedLine[0 ..< firstHash].strip()
-            let commentPart = trimmedLine[(firstHash + 1) ..< secondHash].strip()
-            # Compose line with HTML comment replacing #...#
-            # If codePart is empty, output only comment as a comment line
-            if codePart.len > 0:
-                return codePart & " <!-- " & commentPart & " -->"
-            else:
-                return "<!-- " & commentPart & " -->"
-
-    if trimmedLine.startsWith("Btn"): # <button> tags
-        let ButtonTrim = trimmedLine[3..^1].strip()
-
-        # Default values
-        var buttonSource = ""
-        var buttonLinkText = ""
-
-        # Check if "source:" exists in the line
-        if ButtonTrim.contains("source:") and ButtonTrim.contains("link:"):
-            # Find positions of "source:" and "link:"
-            let sourcePos = ButtonTrim.find("source:") + len("source:")
-            let linkPos = ButtonTrim.find("link:")
-
-            # Extract the text between source: and link:
-            buttonSource = ButtonTrim[sourcePos ..< linkPos].strip()
-
-            # Extract the text after link:
-            buttonLinkText = ButtonTrim[linkPos + len("link:") .. ^1].strip()
-
-            # Build the HTML
-            return "<button> <a href=\"" & buttonSource & "\">" & buttonLinkText & "</a> </button>"
-
+      let secondHash = trimmedLine.find('#', firstHash + 1)
+      if secondHash > firstHash:
+        let codePart = trimmedLine[0 ..< firstHash].strip()
+        let commentPart = trimmedLine[(firstHash + 1) ..< secondHash].strip()
+        if codePart.len > 0:
+          result &= codePart & " <!-- " & commentPart & " -->"
         else:
-            # Just a simple button with no link
-            return "<button>" & ButtonTrim & "</button>"
+          result &= "<!-- " & commentPart & " -->"
+        continue
 
+    if trimmedLine.contains("source: ") and trimmedLine.contains("link: "):
+      let linkLineIndex = trimmedLine.find("link: ")
+      let linkTextStartPos = linkLineIndex + "link: ".len
 
-    
-    if trimmedLine.startsWith("-bd"): # </body> tag
-        return "</body>"
+      var linkText = ""
+      if linkTextStartPos < trimmedLine.len and trimmedLine[linkTextStartPos] == '+':
+        linkText = ""
+      else:
+        linkText = trimmedLine[linkTextStartPos..^1]
 
-    if trimmedLine.startsWith("bd"): # <body> tag
-        return "<body>" & trimmedLine[2..^1].strip()
+      let sourceLineIndex = trimmedLine.find("source: ")
+      let sourceStartPos = sourceLineIndex + "source: ".len
+      let sourceOutput = trimmedLine[sourceStartPos..linkLineIndex - 1]
 
-    if trimmedLine.startsWith("-bd"): # </body> tag
-        return "</body>"
+      result &= "<a href=\"" & sourceOutput & "\">" & linkText & "</a>"
+      continue
 
-    if trimmedLine.startsWith("hd"): # <head> tag
-        return "<head>" & trimmedLine[2..^1].strip()
+    if trimmedLine.startsWith("-bd"):
+      result &= "</body>"
+      continue
 
-    if trimmedLine.startsWith("-hd"): # close header
-        return "</head>"
+    if trimmedLine.startsWith("bd"):
+      result &= "<body>" & trimmedLine[2..^1].strip()
+      continue
+
+    if trimmedLine.startsWith("hd"):
+      result &= "<head>" & trimmedLine[2..^1].strip()
+      continue
+
+    if trimmedLine.startsWith("-hd"):
+      result &= "</head>" & trimmedLine[2..^1].strip()
+      continue
 
     if trimmedLine.startsWith("type: "):
-        return "<!DOCTYPE " & trimmedLine[6..^1].strip() & ">"
+      result &= "<!DOCTYPE " & trimmedLine[6..^1].strip() & ">"
+      continue
 
-    if trimmedLine.startsWith("+"): #if they dont want anything added
-        return trimmedLine[1..^1]
+    if trimmedLine.startsWith("+"):
+      result &= trimmedLine[1..^1]
+      continue
 
     if trimmedLine.startsWith("h1"):
-        return "<h1>" & trimmedLine[1..^1].strip() & "</h1>"
+      result &= "<h1>" & trimmedLine[1..^1].strip() & "</h1>"
+      continue
 
-    elif trimmedLine.startsWith("- "):
-        return "<li>" & trimmedLine[2..^1].strip() & "</li>"
+    if trimmedLine.startsWith(")-"):
+      result &= "</li>"
+      continue
 
-  # Otherwise, treat it as a paragraph <p>
-    else:
-        return "<p>" & line & "</p>"
+    echo addListEnder
+
+    # Otherwise, treat as paragraph
+    result &= "<p>" & trimmedLine & "</p>"
+
+  return result
 
 proc main() =
   if not fileExists(inputFile):
