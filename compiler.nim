@@ -24,6 +24,7 @@ proc CssParser(line: string): string =
 /* === PRESET CSS CLASSES === */
 
 /* Text sizes */
+.text-xs       { font-size: 0.5rem; }
 .text-small    { font-size: 0.8rem; }
 .text-normal   { font-size: 1rem; }
 .text-large    { font-size: 1.5rem; }
@@ -43,13 +44,15 @@ proc CssParser(line: string): string =
 .text-red   { color: #FF4136; }
 .text-green  { color: #2ECC40; }
 .text-white  { color: #FFFFFF; }
+.text-purple {color: #10002B;}
 
 /* Backgrounds */
-.bg-light      { background-color: #f9f9f9; }
-.bg-dark       { background-color: darkgrey; color: white; }
-.bg-primary    { background-color: #007BFF; color: white; }
-.bg-success    { background-color: #2ECC40; color: white; }
-.bg-danger     { background-color: #FF4136; color: white; }
+.bg-white    { background-color: #FFFFFF; }
+.bg-grey       { background-color: darkgrey; }
+.bg-blue    { background-color: #007BFF; }
+.bg-green    { background-color: #2ECC40; }
+.bg-red     { background-color: #FF4136; }
+.bg-black { background-color: black;}
 
 /* Borders */
 .border        { border: 1px solid #ccc; padding: 0.5rem; }
@@ -74,8 +77,29 @@ proc CssParser(line: string): string =
 
 /* Widths */
 .w-100         { width: 100%; }
+.w-90          { width: 90%; }
+.w-80         { width: 80%; }
+.w-70          { width: 70%; }
+.w-60         { width: 60%; }
 .w-50          { width: 50%; }
+.w-40         { width: 40%; }
+.w-30          { width: 30%; }
+.w-20         { width: 20%; }
+.w-10          { width: 10%; }
 .w-auto        { width: auto; }
+
+/* Heights */
+.h-100         { height: 100%; }
+.h-90          { height: 90%; }
+.h-80         { height: 80%; }
+.h-70          { height: 70%; }
+.h-60         { height: 60%; }
+.h-50          { height: 50%; }
+.h-40         { height: 40%; }
+.h-30          { height: 30%; }
+.h-20         { height: 20%; }
+.h-10          { height: 10%; }
+.h-auto        { height: auto; }
 
 /* Buttons */
 .btn           { display: inline-block; padding: 0.5rem 1rem; font-size: 1rem; border: none; border-radius: 0.3rem; cursor: pointer; text-align: center; }
@@ -86,6 +110,44 @@ proc CssParser(line: string): string =
 
 /* Images */
 .img-responsive { max-width: 100%; height: auto; }
+
+/* centering */
+.center-h {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.center-v {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.center-vh {
+  left: 50%;
+  top: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+.text-top {
+  display: flex;
+  align-items: flex-start;
+}
+
+.text-center-v {
+  display: flex;
+  align-items: center;
+}
+
+.text-bottom {
+  display: flex;
+  align-items: flex-end;
+}
+
+.text-center-vh {
+  display: flex;
+  justify-content: center; /* horizontal centering */
+  align-items: center;     /* vertical centering */
+}
 
 /* === END PRESET === */
 """
@@ -118,8 +180,10 @@ proc parseLine(line: string): string =
 
         elif cmd.startsWith("class:"):
             CssClass = cmd[6..^1].strip()
-            ClassPos = index 
-            echo CssClass
+            ClassPos = index
+            usedCssClasses.incl(CssClass)
+            echo "Detected CSS class: ", CssClass
+
 
         #closing tags
 

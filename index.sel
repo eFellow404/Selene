@@ -1,11 +1,12 @@
-class: bg-light w-100 h-100 flex flex-center; bd
-class: bg-white p-3 border-round w-50; div: Hello, this is a white box in the center of a black page!
-!div
-class: text-xl text-red; div: hi; 
+hd; 
+title: Lucas's Webpage;
+link.script: index.js;
+!hd;
+
+class: bg-black text-purple text-xl; bd;
+    class: w-80 h-auto border-round center-vh text-center-vh; div: Hi here is my Webpage;
+!bd;
 
 exit html
 
 load preset
-
-.bg-black { background-color: black; color: white; }
-.h-100 { height: 100vh; }
