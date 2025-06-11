@@ -56,7 +56,7 @@ closing commands --------------------------------<br>
 !nav --> `</nav>`<br>
 !div --> `/div`<br>
 <br>
-exit html; --> exits htmt mode and intitiates css mode<br>
+start css; --> exits htmt mode and intitiates css mode<br>
 <br>
 Css Mode<br>
 <br>
