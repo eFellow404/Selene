@@ -1,72 +1,165 @@
-This is a template engine that you can use to create websites with <br>
-To run it install nim on your machina and run sudo r compiler.nim in the same folder as your index.sel file<br>
-<br>
-it is divided into sections. currently there are only 2, HTML and CSS (I plan to add JS later)<br>
-<br>
-Here are the commands and what they output when interpreted<br>
+# Selene Templating Engine
 
-HTML commands:<br>
+**Selene** is a lightweight templating engine for generating HTML and CSS using a custom syntax.
 
-All commmands are seperated with a semicolon ; and inputs within commands are prefaced with a colon :<br>
-indentation or spaces do not matter as blank space to the left or right of the command is removed before proccessing<br>
-<br>
-class: ClassName; -- >                  <br>                                                                                    
-Doesn't do anything on its own but adds a class to something infront of it e.g class: container; div: content; becomes `<div class ="container"></div>`<br>
+---
 
-external links ---------------------------------------- <br>                                                                            
-link.css: name.css; --> `<link href="name.css" rel="stylesheet" type="text/css">`   <br>                                            
-link.icon: icon.png; --> `<link href="icon.png" rel="icon">`           <br>                                                             
-link.script script.js --> `<script src="script.js" defer></script>`            <br>                                             
+## 🛠 Getting Started
 
+1. Install [Nim](https://nim-lang.org).
+2. Place your `FileName.sel` file in the same folder as `compiler.nim`.
+3. Run the compiler:
 
-Everything Below can be altered by adding the class: NameOfClass; command before.<br>
-you can also nest commands. e.g a button within a list<br>
-you can also nest classes. the class command only applies to what is right of it.<br>
-<br>
-e.g class: ListClass; -; class: ButtonClass; btn: content; becomes<br>
-`<li class="ListClass"><button class="ButtonClass">Content</button></li>`<br>
-<br>
-There is a max of 100 commands per line.<br>
-<br>
-Self-Closing Commands ---------------------------<br>
-<br>
--; --> `<li></li>`<br>
-Btn; --> `<button></button>`<br>
-Source: index.html; `<a href="link.html"></a>`<br>
-title: My Website; `<title> My Website </title>`<br>
-div: content; `<div>content</div>`<br>
-p: content; `<p>content</p>`<br>
-h1: content; `<h1>content</h1>` (works on h1-6)<br>
-img: img.png `<img src="img.png">`<br>
-<br>
-Doesn't add anything -------------<br>
-text: content; `content`<br>
-<br>
-Opening commands -----------------------------<br>
-hrd; --> `<header>`<br>
-hd; --> `<head>`<br>
-bd; --> `<body>`<br>
-nav; --> `<nav>`<br>
-/div; --> `<div>` <br>
-<br>
-closing commands --------------------------------<br>
-!hrd --> `</header>`<br>
-!hd --> `</head>`<br>
-!bd --> `</body>`<br>
-!nav --> `</nav>`<br>
-!div --> `/div`<br>
-<br>
-start css; --> exits htmt mode and intitiates css mode<br>
-<br>
-Css Mode<br>
-<br>
-There is only one command in Css mode which is:<br>
-<br>
-load preset --> This loads a large amount of premade css styles which get automatically added to the index.css file<br>
-<br>
-when in css mode you can write css directly in the .sel file and it will be directly added to your index.css file unchanged<br>
-<br>
-when using the class command you can reference more than one class and they will all apply to the element<br>
-simply seperate the classes with a space <br>
-e.g class: Class-1 Class-2 Class-3;<br>
+```bash
+sudo nim r compiler.nim
+```
+
+---
+
+4. input the Name of your file (without the .sel)
+
+## ✨ Features
+
+- Supports **HTML** and **CSS** modes
+- JavaScript support coming soon
+- Clean, readable syntax
+- Supports nesting and reusable classes
+
+Switch to CSS mode using:
+
+```selene
+start css;
+```
+
+---
+
+## 📐 Syntax Rules
+
+- Commands end with `;`
+- Inputs use `:`, e.g. `div: Hello;`
+- Whitespace is ignored
+- Max **100 commands per line**
+- Nesting and multiple classes are supported
+- `class:` applies only to the next command
+- Multiple classes are space-separated
+
+---
+
+## 📄 HTML Mode
+
+### Class Example
+
+```selene
+class: container; div: Hello;
+```
+
+Outputs:
+
+```html
+<div class="container">Hello</div>
+```
+
+Multiple classes:
+
+```selene
+class: text-xl bg-white text-black;
+```
+
+---
+
+### 🔗 External Links
+
+```selene
+link.css: style.css;       --> <link href="style.css" rel="stylesheet" type="text/css">
+link.icon: icon.png;       --> <link href="icon.png" rel="icon">
+link.script: script.js;    --> <script src="script.js" defer></script>
+```
+
+---
+
+### 🧩 Self-Closing & Content Tags
+
+| Selene Command            | Output                                  |
+|---------------------------|------------------------------------------|
+| `-;`                      | `<li></li>`                              |
+| `btn;`                    | `<button></button>`                      |
+| `source: index.html;`     | `<a href="index.html"></a>`              |
+| `title: My Site;`         | `<title>My Site</title>`                 |
+| `div: Hello;`             | `<div>Hello</div>`                       |
+| `p: Text;`                | `<p>Text</p>`                            |
+| `h1: Heading;`            | `<h1>Heading</h1>`                        |
+| `img: image.png;`         | `<img src="image.png">`                  |
+| `text: plain text;`       | `plain text` (no HTML added)             |
+
+---
+
+### 🧭 Structural Tags
+
+#### Opening Tags
+
+```selene
+hrd;    --> <header>
+hd;     --> <head>
+bd;     --> <body>
+nav;    --> <nav>
+/div;   --> <div>
+```
+
+#### Closing Tags
+
+```selene
+!hrd;   --> </header>
+!hd;    --> </head>
+!bd;    --> </body>
+!nav;   --> </nav>
+!div;   --> </div>
+```
+
+---
+
+## 🎨 CSS Mode
+
+Switch to CSS mode:
+
+```selene
+start css;
+```
+
+In CSS mode:
+
+- Write raw CSS directly into the `.sel` file.
+- Use `load preset;` to include a predefined CSS bundle (appended to `FileName.css`).
+
+Example:
+
+```selene
+start css;
+body {
+  background-color: #111;
+  color: #eee;
+}
+```
+
+---
+
+## 🧪 Example Output
+
+```selene
+class: list; -; class: button; btn: Click me;
+```
+
+Outputs:
+
+```html
+<li class="list"> <button class="button">Click me</button> </li>
+```
+
+---
+
+## 🔧 Notes
+
+- Nesting is fully supported.
+- You can apply multiple class commands in sequence.
+- Only the next command after `class:` is affected.
+
 
