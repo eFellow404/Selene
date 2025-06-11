@@ -149,6 +149,17 @@ proc CssParser(line: string): string =
   align-items: center;     /* vertical centering */
 }
 
+/* if you want the whole thing to be completely top bottom or side */
+
+.top { top: 0%; }
+
+.bottom { bottom: 0%; }
+
+.left { left: 0%;}
+
+.right { right: 0%; }
+
+
 /* === END PRESET === */
 """
         return result
@@ -180,9 +191,8 @@ proc parseLine(line: string): string =
 
         elif cmd.startsWith("class:"):
             CssClass = cmd[6..^1].strip()
-            ClassPos = index
-            usedCssClasses.incl(CssClass)
-            echo "Detected CSS class: ", CssClass
+            ClassPos = index 
+            echo CssClass
 
 
         #closing tags

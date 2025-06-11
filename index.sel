@@ -3,9 +3,11 @@ title: Lucas's Webpage;
 link.script: index.js;
 !hd;
 
-class: bg-black text-purple text-xl; bd;
-    class: w-80 h-auto border-round center-vh text-center-vh; div: Hi here is my Webpage;
-!bd;
+class: bg-white; hd;
+    class: bg-black w-100 h-10 top ; /div;
+        class: text-white text-xl text-center; div: Welcome to my webpage;
+    !div;
+!hd;
 
 exit html
 
