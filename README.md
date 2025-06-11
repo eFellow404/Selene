@@ -77,7 +77,7 @@ link.script: script.js;    --> <script src="script.js" defer></script>
 
 ---
 
-### 🧩 Self-Closing & Content Tags
+### 🧩 Self-Closing & Content Tags (also support class: name;)
 
 | Selene Command            | Output                                  |
 |---------------------------|------------------------------------------|
@@ -95,7 +95,7 @@ link.script: script.js;    --> <script src="script.js" defer></script>
 
 ### 🧭 Structural Tags
 
-#### Opening Tags
+#### Opening Tags (also support class: name;)
 
 ```selene
 hrd;    --> <header>
@@ -105,7 +105,7 @@ nav;    --> <nav>
 /div;   --> <div>
 ```
 
-#### Closing Tags
+#### Closing Tags (do NOT suport adding classes)
 
 ```selene
 !hrd;   --> </header>
