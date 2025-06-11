@@ -1,22 +1,30 @@
 import os, strutils, sequtils
+echo " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n what is the name of your .sel file (Do NOT include the .sel)"
+let UserSelectedName = readline(stdin)
+echo "your css, js and html files will have the same name"
 
-let inputFile = "index.sel"
-let outputFile = "index.html"
-let outputFileCss = "index.css"
+let inputFile = UserSelectedName & ".sel"
+let outputFile = UserSelectedName & ".html"
+let outputFileCss = UserSelectedName & ".css"
+let outputFileJs = UserSelectedName & ".js"
 var htmlMode = true
 var cssModeStarted = false 
+var JavaScriptMode = false
 
 proc CssParser(line: string): string =
     var result = ""
-
-    # If this is the first CSS line, mark that CSS mode has started
-    if not cssModeStarted:
-        cssModeStarted = true
 
     if line != "load preset":
         # Add the current line exactly as it was
         result &= line & "\n"
         return result
+
+    if line == "exit css":
+        # come out of css mode
+        cssModeStarted = false;
+        htmlMode = true 
+        JavaScriptMode = false
+        return 
 
     if line == "load preset":
         echo "preset loaded"
@@ -183,8 +191,16 @@ proc parseLine(line: string): string =
 
         # exitiing html mode
 
-        elif cmd.startsWith("exit html"):
+        elif cmd.startsWith("start css"):
             htmlMode = false
+            cssModeStarted = true
+            JavaScriptMode = false
+            return
+
+        elif cmd.startsWith("start JS"):
+            JavaScriptMode = true
+            htmlMode = false
+            cssModeStarted = false
             return
 
         #class linker
@@ -404,13 +420,17 @@ proc main() =
             let htmlLine = parseLine(line)
             outputLines.add(htmlLine)
             
-        else:
+        elif cssModeStarted:
             let cssLine = CssParser(line)
             outputLinesCss.add(cssLine)
+        
+         #elif JavaScriptMode:
+          #  let JavaScriptLine = JSParser(line)
+           # outputLinesJs.add(JavaScriptLine)
 
     # Insert default CSS link at top (or we can do it smarter later)
-    let cssLinkTag = "<link href=\"index.css\" rel=\"stylesheet\" type=\"text/css\">"
-    outputLines.insert(cssLinkTag, 0)
+    let CssJsLink = "<link href=\"" & outputFileCss & "\" rel=\"stylesheet\" type=\"text/css\"><script src=\"" & outputFileJs & "\" defer></script>"
+    outputLines.insert(CssJsLink, 0)
 
     # Join all lines with newlines and write to output file
     writeFile(outputFile, join(outputLines, "\n"))

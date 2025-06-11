@@ -9,6 +9,10 @@ class: bg-white; hd;
     !div;
 !hd;
 
-exit html
+start css;
 
 load preset
+
+exit css;
+
+div: hi;
