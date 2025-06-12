@@ -11,9 +11,20 @@ class: bg-white; hd;
 
 div: hi;
 
+id: me; div: me;
+
+/div: me; class: me; id: me;
+-: ; id: container; class: button-click; div: ;id: button; class: clicker; btn: pls dont click me;
+
 id: div1; class: container; /div: content;
 
 id: header; class: text-xl; h1: MWAMWAMWA;
+id: header; class: text-xl; h2: MWAMWAMWA;
+id: header; class: text-xl; h3: MWAMWAMWA;
+id: header; class: text-xl; h4: MWAMWAMWA;
+id: header; class: text-xl; h5: MWAMWAMWA;
+id: container; class: div; div: ;id: header; class: text-xl; h6: MWAMWAMWA;
+
 
 start css;
 

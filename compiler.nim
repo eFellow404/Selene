@@ -256,8 +256,8 @@ proc parseLine(line: string): string =
                 CssClass = ""
             if IDPos != index - 2:
                 IDClass = ""
-
-            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
+            let content = cmd[5..^1].strip()
+            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
 
         elif cmd.startsWith("nav"):
             if ClassPos != index - 1:
@@ -389,8 +389,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("p:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[2..^1].strip()
-            results[index] &= "<p class =\"" & CssClass & "\">" & content
+            results[index] &= "<p class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</p>"
@@ -398,8 +401,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("div:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[4..^1].strip()
-            results[index] &= "<div class =\"" & CssClass & "\">" & content
+            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</div>"
@@ -407,36 +413,47 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("title:"):
             if ClassPos != index - 1:
                 CssClass = ""
-            let title = cmd[6..^1].strip()
-            results[index] &= "<title class=\"" & CssClass & "\">" & title
-            let titleEndPos = results.len - index - 1 # Use correct formula
-            echo "titleEndPos = ", titleEndPos
-            results[titleEndPos] &= "</title>"
+            if IDPos != index - 2:
+                IDClass = ""
+
+            let content = cmd[6..^1].strip()
+            results[index] &= "<title class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</title>"
 
         elif cmd.startsWith("source:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
             let source = cmd[7..^1].strip()
-            results[index] &= "<a href=\"" & source & "\" class =\"" & CssClass & "\">"
+            results[index] &= "<a href=\"" & source & "\"  class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</a>"
 
-        elif cmd.startsWith("btn"):
+        elif cmd.startsWith("btn:"):
             if ClassPos != index - 1:
                 CssClass = ""
-            results[index] &= "<button class=\"" & CssClass & "\">"
+            if IDPos != index - 2:
+                IDClass = ""
+            let content = cmd[4..^1]
+            results[index] &= "<button  class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let ButtonEndPos = results.len - index - 1 # Use correct formula
             echo "ButtonEndPos = ", ButtonEndPos
             results[ButtonEndPos] &= "</button>"
 
-        elif cmd.startsWith("-"):
+        elif cmd.startsWith("-:"):
             if ClassPos != index - 1:
                 CssClass = ""
-            results[index] &= "<li class=\"" & CssClass & "\">"
-            let LinkEndPos = results.len - index - 1 # Use correct formula
-            echo "LinkEndPos = ", LinkEndPos
-            results[LinkEndPos] &= "</li>"
+            if IDPos != index - 2:
+                IDClass = ""
+            let content = cmd[2..^1]
+            results[index] &= "<li  class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            let ButtonEndPos = results.len - index - 1 # Use correct formula
+            echo "ButtonEndPos = ", ButtonEndPos
+            results[ButtonEndPos] &= "</li>"
 
         # debug
         echo "Command #" & $(index+1) & ": " & cmd
