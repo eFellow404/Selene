@@ -46,7 +46,7 @@ proc CssParser(line: string): string =
 .text-right    { text-align: right; }
 
 /* Colors */
-.text-black  { color: #000000; }
+.text-black  { color: #\n000000; }
 .text-grey{ color: #777777; }
 .text-blue   { color: #007BFF; }
 .text-red   { color: #FF4136; }
@@ -181,6 +181,8 @@ proc parseLine(line: string): string =
     var results = newSeq[string](100)   # Force 100 slots to be safe
     var ClassPos = 0
     var CssClass = ""
+    var IDPos = 0
+    var IDClass = ""
 
     for i in 0 ..< results.len:
         results[i] = ""  # Initialize all to empty string
@@ -203,12 +205,17 @@ proc parseLine(line: string): string =
             cssModeStarted = false
             return
 
-        #class linker
+        #class and id linker
 
         elif cmd.startsWith("class:"):
             CssClass = cmd[6..^1].strip()
             ClassPos = index 
             echo CssClass
+
+        elif cmd.startsWith("id:"):
+            IDClass = cmd[3..^1].strip()
+            IDPos = index 
+            echo IDPos
 
 
         #closing tags
@@ -247,32 +254,42 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("/div"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
 
-            results[index] &= "<div class=\"" & CssClass & "\">"
+            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("nav"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
 
-            results[index] &= "<nav class=\"" & CssClass & "\">"
+            results[index] &= "<nav class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("bd"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
 
-            results[index] &= "<body class=\"" & CssClass & "\">"
+            results[index] &= "<body class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("hd"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
 
-            results[index] &= "<head class=\"" & CssClass & "\">"
+            results[index] &= "<head class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("hrd"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
 
-            results[index] &= "<header class=\"" & CssClass & "\">"
+            results[index] &= "<header class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("text:"):
             let textText = cmd[5..^1].strip()
@@ -283,7 +300,10 @@ proc parseLine(line: string): string =
             let imgSrc = cmd[4..^1].strip()
             if ClassPos != index - 1:
                 CssClass = ""
-            results[index] &= "<img src=\"" & imgSrc & "\" class=\"" & CssClass & "\">"
+            if IDPos != index - 2:
+                IDClass = ""
+
+            results[index] &= "<img src=\"" & imgSrc & "\" class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("+"):
             results[index] &= cmd[1..^1]
@@ -295,8 +315,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("h1:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[4..^1].strip()
-            results[index] &= "<h1 class =\"" & CssClass & "\">" & content
+            results[index] &= "<h1 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</h1>"
@@ -304,8 +327,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("h2:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[4..^1].strip()
-            results[index] &= "<h2 class =\"" & CssClass & "\">" & content
+            results[index] &= "<h2 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</h2>"
@@ -313,8 +339,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("h3:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[4..^1].strip()
-            results[index] &= "<h3 class =\"" & CssClass & "\">" & content
+            results[index] &= "<h3 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</h3>"
@@ -322,8 +351,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("h4:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[4..^1].strip()
-            results[index] &= "<h4 class =\"" & CssClass & "\">" & content
+            results[index] &= "<h4 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</h4>"
@@ -331,8 +363,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("h5:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[4..^1].strip()
-            results[index] &= "<h5 class =\"" & CssClass & "\">" & content
+            results[index] &= "<h5 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</h5>"
@@ -340,8 +375,11 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("h6:"):
             if ClassPos != index - 1:
                 CssClass = ""
+            if IDPos != index - 2:
+                IDClass = ""
+
             let content = cmd[4..^1].strip()
-            results[index] &= "<h6 class =\"" & CssClass & "\">" & content
+            results[index] &= "<h6 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</h6>"
@@ -429,7 +467,7 @@ proc main() =
            # outputLinesJs.add(JavaScriptLine)
 
     # Insert default CSS link at top (or we can do it smarter later)
-    let CssJsLink = "<link href=\"" & outputFileCss & "\" rel=\"stylesheet\" type=\"text/css\"><script src=\"" & outputFileJs & "\" defer></script>"
+    let CssJsLink = "<head> <link href=\"" & outputFileCss & "\" rel=\"stylesheet\" type=\"text/css\"><script src=\"" & outputFileJs & "\" defer></script></head>"
     outputLines.insert(CssJsLink, 0)
 
     # Join all lines with newlines and write to output file

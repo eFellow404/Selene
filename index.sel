@@ -9,6 +9,12 @@ class: bg-white; hd;
     !div;
 !hd;
 
+div: hi;
+
+id: div1; class: container; /div: content;
+
+id: header; class: text-xl; h1: MWAMWAMWA;
+
 start css;
 
 load preset
@@ -16,3 +22,5 @@ load preset
 exit css;
 
 div: hi;
+
+id: div1; class: container; /div: content;
