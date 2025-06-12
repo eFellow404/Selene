@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selene Editor</title>
+  <style>
+    body { font-family: monospace; background: #2e3440; color: #d8dee9; padding: 20px; }
+    .editor-wrapper { position: relative; width: 100%; height: 80vh; }
+    pre { 
+      margin: 0; padding: 10px;
+      background: #3b4252; border: 1px solid #4c566a;
+      width: 100%; height: 100%; overflow: auto;
+      white-space: pre-wrap; word-wrap: break-word;
+      pointer-events: none;
+    }
+    textarea {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: transparent; color: transparent;
+      caret-color: #d8dee9;
+      border: none; padding: 10px;
+      resize: none; overflow: auto;
+      font-family: monospace; font-size: 1em;
+      line-height: normal; white-space: pre-wrap;
+      outline: none;
+    }
+    .token-command { color: #88c0d0; }
+    .token-arg { color: #a3be8c; }
+    .token-colon { color: #5e81ac; }
+    .token-semicolon { color: #bf616a; }
+    #saveBtn, #downloadLink {
+      position: absolute; top: 20px; right: 20px;
+      padding: 8px 12px; background: #81a1c1; border: none; color: #2e3440;
+      font-size: 0.9em; cursor: pointer; border-radius: 4px;
+      text-decoration: none;
+    }
+    #downloadLink { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Selene Templating Engine Editor</h1>
+  <button id="saveBtn">Choose .sel File</button>
+  <a id="downloadLink" download="untitled.sel">Download .sel</a>
+  <div class="editor-wrapper">
+    <pre id="highlighting"></pre>
+    <textarea id="editor" spellcheck="false" placeholder="Type your Selene code here..."></textarea>
+  </div>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const highlighting = document.getElementById('highlighting');
+    const saveBtn = document.getElementById('saveBtn');
+    const downloadLink = document.getElementById('downloadLink');
+    let fileHandle;
+
+    // Check for File System Access API support
+    const supportsFS = 'showSaveFilePicker' in window;
+
+    async function pickFile() {
+      if (!supportsFS) {
+        alert('File System Access API not supported in this browser. Please use the download link.');
+        downloadLink.style.display = 'inline-block';
+        return;
+      }
+      try {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: 'untitled.sel',
+          types: [{ description: 'Selene Files', accept: { 'text/plain': ['.sel'] } }]
+        });
+        saveBtn.textContent = 'Saving...';
+      } catch (err) {
+        console.error('File pick cancelled or failed:', err);
+      }
+    }
+
+    async function saveToFile() {
+      if (fileHandle) {
+        try {
+          const writable = await fileHandle.createWritable();
+          await writable.write(editor.value);
+          await writable.close();
+          saveBtn.textContent = 'Saved';
+          setTimeout(() => saveBtn.textContent = 'Save .sel', 1000);
+        } catch (err) {
+          console.error('Save failed:', err);
+        }
+      } else {
+        // Fallback to download link
+        const blob = new Blob([editor.value], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.style.display = 'inline-block';
+      }
+    }
+
+    saveBtn.addEventListener('click', pickFile);
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+      return text.replace(/[&<>]/g, m => map[m]);
+    }
+
+    function updateHighlight() {
+      const text = editor.value;
+      const escaped = escapeHtml(text);
+      const pattern = /(?<cmd>\b(start\s+css|clid|class|link\.css|link\.icon|link\.script|load\s+preset|\-|btn|source|title|div|p|h1|img|text|hrd|hd|bd|nav|\/div|!hrd|!hd|!bd|!nav|!div)\b)|(?<arg>:[^;\n]*)|(?<colon>:)|(?<semi>;)/gi;
+      const result = escaped.replace(pattern, (...args) => {
+        const groups = args[args.length - 1];
+        if (groups.cmd) return `<span class=\"token-command\">${args[0]}</span>`;
+        if (groups.arg) return `<span class=\"token-arg\">${args[0]}</span>`;
+        if (groups.colon) return `<span class=\"token-colon\">${args[0]}</span>`;
+        if (groups.semi) return `<span class=\"token-semicolon\">${args[0]}</span>`;
+        return args[0];
+      });
+      highlighting.innerHTML = result;
+      highlighting.scrollTop = editor.scrollTop;
+      highlighting.scrollLeft = editor.scrollLeft;
+      saveToFile(); // auto-save on input
+    }
+
+    editor.addEventListener('input', updateHighlight);
+    editor.addEventListener('scroll', () => {
+      highlighting.scrollTop = editor.scrollTop;
+      highlighting.scrollLeft = editor.scrollLeft;
+    });
+
+    // initial
+    saveBtn.textContent = supportsFS ? 'Choose .sel File' : 'Save .sel';
+    updateHighlight();
+    editor.focus();
+  </script>
+</body>
+</html>
