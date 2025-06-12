@@ -40,29 +40,29 @@ start css;
 - Whitespace is ignored
 - Max **100 commands per line**
 - Nesting and multiple classes are supported
-- `class:` applies only to the next command
+- `clid:` applies only to the next command
 - Multiple classes are space-separated
 
 ---
 
 ## 📄 HTML Mode
 
-### Class Example
+### clid Example
 
 ```selene
-class: container; div: Hello;
+clid: container : ID; div: Hello;
 ```
 
 Outputs:
 
 ```html
-<div class="container">Hello</div>
+<div class="container " id="ID">Hello</div>
 ```
 
 Multiple classes:
 
 ```selene
-class: text-xl bg-white text-black;
+clid: text-xl bg-white text-black: IDName;
 ```
 
 ---
@@ -77,7 +77,7 @@ link.script: script.js;    --> <script src="script.js" defer></script>
 
 ---
 
-### 🧩 Self-Closing & Content Tags (also support class: name;)
+### 🧩 Self-Closing & Content Tags (also support clid: ClassName: IDName;)
 
 | Selene Command            | Output                                  |
 |---------------------------|------------------------------------------|
@@ -95,7 +95,7 @@ link.script: script.js;    --> <script src="script.js" defer></script>
 
 ### 🧭 Structural Tags
 
-#### Opening Tags (also support class: name;)
+#### Opening Tags (also support clid: ClassName: IDName;)
 
 ```selene
 hrd;    --> <header>

@@ -1,37 +1,49 @@
+# Test file for Selene Templating Engine
+
+# Start HTML mode
+clid: container : mainID; 
 hd; 
-title: Lucas's Webpage;
-link.script: index.js;
-!hd;
+title: My Test Site; 
+link.css: style.css; 
+link.icon: icon.png; 
+link.script: script.js; 
+hrd; 
+nav; 
+div: Navigation; 
+!nav; 
+!hrd; 
 
-class: bg-white; hd;
-    class: bg-black w-100 h-10 top ; /div;
-        class: text-white text-xl text-center; div: Welcome to my webpage;
-    !div;
-!hd;
+# Body content
+bd; 
+h1: Welcome to My Site; 
+p: This is a paragraph of text. 
+div: This is a div with a class and id; 
+clid: text-xl bg-white : divID; 
+text: Additional text inside the div; 
+!div; 
 
-div: hi;
+# Image and button
+img: image.png; 
+btn: Click Me; 
+source: index.html; 
+-;  # List item
+!bd; 
 
-id: me; div: me;
+# Closing head tag
+!hd; 
 
-/div: me; class: me; id: me;
--: ; id: container; class: button-click; div: ;id: button; class: clicker; btn: pls dont click me;
-
-id: div1; class: container; /div: content;
-
-id: header; class: text-xl; h1: MWAMWAMWA;
-id: header; class: text-xl; h2: MWAMWAMWA;
-id: header; class: text-xl; h3: MWAMWAMWA;
-id: header; class: text-xl; h4: MWAMWAMWA;
-id: header; class: text-xl; h5: MWAMWAMWA;
-id: container; class: div; div: ;id: header; class: text-xl; h6: MWAMWAMWA;
-
-
-start css;
-
-load preset
-
-exit css;
-
-div: hi;
-
-id: div1; class: container; /div: content;
+# Start CSS mode
+start css; 
+body { 
+  background-color: #f0f0f0; 
+  color: #333; 
+} 
+.load preset; 
+.text-center { 
+  text-align: center; 
+} 
+.btn { 
+  padding: 10px; 
+  background-color: #007BFF; 
+  color: white; 
+} 

@@ -179,9 +179,12 @@ proc CssParser(line: string): string =
 proc parseLine(line: string): string =
     let commands = line.split(';').mapIt(it.strip())
     var results = newSeq[string](100)   # Force 100 slots to be safe
-    var ClassPos = 0
+    var clid = ""
+    var clidpos = 0
+    var class = ""
+    var id = ""
+    var ClidPos = 0
     var CssClass = ""
-    var IDPos = 0
     var IDClass = ""
 
     for i in 0 ..< results.len:
@@ -207,16 +210,15 @@ proc parseLine(line: string): string =
 
         #class and id linker
 
-        elif cmd.startsWith("class:"):
-            CssClass = cmd[6..^1].strip()
-            ClassPos = index 
-            echo CssClass
-
-        elif cmd.startsWith("id:"):
-            IDClass = cmd[3..^1].strip()
-            IDPos = index 
-            echo IDPos
-
+        elif cmd.startsWith("clid:"):
+            clid = cmd[5..^1].strip()
+            let split = clid.split(':').mapIt(it.strip())
+            ClidPos = index
+            if split.len == 2:
+                CssClass = split[0]
+                IDClass = split[1]
+            else:
+                echo "2 parts not found within the clid command"
 
         #closing tags
 
@@ -252,41 +254,37 @@ proc parseLine(line: string): string =
         # Normal command processing
 
         elif cmd.startsWith("/div"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
+
             let content = cmd[5..^1].strip()
             results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
 
         elif cmd.startsWith("nav"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             results[index] &= "<nav class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("bd"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             results[index] &= "<body class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("hd"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             results[index] &= "<head class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("hrd"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             results[index] &= "<header class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
@@ -298,9 +296,8 @@ proc parseLine(line: string): string =
 
         elif cmd.startsWith("img:"):
             let imgSrc = cmd[4..^1].strip()
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             results[index] &= "<img src=\"" & imgSrc & "\" class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
@@ -313,9 +310,8 @@ proc parseLine(line: string): string =
         # firstly just the h1-6
 
         elif cmd.startsWith("h1:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
@@ -325,9 +321,8 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</h1>"
 
         elif cmd.startsWith("h2:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
@@ -337,9 +332,8 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</h2>"
 
         elif cmd.startsWith("h3:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
@@ -349,9 +343,8 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</h3>"
 
         elif cmd.startsWith("h4:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
@@ -361,9 +354,8 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</h4>"
 
         elif cmd.startsWith("h5:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
@@ -373,9 +365,8 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</h5>"
 
         elif cmd.startsWith("h6:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
@@ -387,9 +378,8 @@ proc parseLine(line: string): string =
         #now the rest
 
         elif cmd.startsWith("p:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[2..^1].strip()
@@ -399,9 +389,8 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</p>"
 
         elif cmd.startsWith("div:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
@@ -411,9 +400,8 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</div>"
 
         elif cmd.startsWith("title:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
 
             let content = cmd[6..^1].strip()
@@ -423,10 +411,10 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</title>"
 
         elif cmd.startsWith("source:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
+
             let source = cmd[7..^1].strip()
             results[index] &= "<a href=\"" & source & "\"  class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
             let SourceEndPos = results.len - index - 1 # Use correct formula
@@ -434,10 +422,10 @@ proc parseLine(line: string): string =
             results[SourceEndPos] &= "</a>"
 
         elif cmd.startsWith("btn:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
+
             let content = cmd[4..^1]
             results[index] &= "<button  class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let ButtonEndPos = results.len - index - 1 # Use correct formula
@@ -445,10 +433,10 @@ proc parseLine(line: string): string =
             results[ButtonEndPos] &= "</button>"
 
         elif cmd.startsWith("-:"):
-            if ClassPos != index - 1:
+            if ClidPos != index - 1:
                 CssClass = ""
-            if IDPos != index - 2:
                 IDClass = ""
+
             let content = cmd[2..^1]
             results[index] &= "<li  class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
             let ButtonEndPos = results.len - index - 1 # Use correct formula
