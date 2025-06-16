@@ -225,17 +225,32 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("!hd"):
             results[index] &= "</head>"
 
+        elif cmd.startsWith("!art"):
+            results[index] &= "</head>"
+
+        elif cmd.startsWith("!sec"):
+            results[index] &= "</section>"
+
         elif cmd.startsWith("!bd"):
             results[index] &= "</body>"
 
         elif cmd.startsWith("!hrd"):
             results[index] &= "</header>"
 
+        elif cmd.startsWith("!frd"):
+            results[index] &= "</footer>"
+
         elif cmd.startsWith("!nav"):
             results[index] &= "</nav>"
 
         elif cmd.startsWith("!div"):
             results[index] &= "</div>"
+
+        elif cmd.startsWith("!ul"):
+            results[index] &= "</ul>"
+
+        elif cmd.startsWith("!ol"):
+            results[index] &= "</ol>"
 
         # linking at the top of the document
 
@@ -253,13 +268,49 @@ proc parseLine(line: string): string =
         
         # Normal command processing
 
-        elif cmd.startsWith("/div"):
+        elif cmd.startsWith("/div:"):
             if ClidPos != index - 1:
                 CssClass = ""
                 IDClass = ""
 
             let content = cmd[5..^1].strip()
             results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+
+        elif cmd.startsWith("/section:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[9..^1].strip()
+            results[index] &= "<section class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+
+        elif cmd.startsWith("nl:"):
+            let content = cmd[3..^1].strip()
+            results[index] &= "<br>" & content
+
+        elif cmd.startsWith("hr:"):
+            let content = cmd[3..^1].strip()
+            results[index] &= "<hr>" & content
+
+        elif cmd.startsWith("meta:"):
+            let content = cmd[5..^1].strip()
+            results[index] &= "<meta" & content & ">"
+
+        elif cmd.startsWith("ul:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[3..^1].strip()
+            results[index] &= "<ul class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+
+        elif cmd.startsWith("ol:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[3..^1].strip()
+            results[index] &= "<ol class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content    
 
         elif cmd.startsWith("nav"):
             if ClidPos != index - 1:
@@ -288,6 +339,13 @@ proc parseLine(line: string): string =
                 IDClass = ""
 
             results[index] &= "<header class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
+
+        elif cmd.startsWith("frd"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            results[index] &= "<footer class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("text:"):
             let textText = cmd[5..^1].strip()
@@ -387,6 +445,17 @@ proc parseLine(line: string): string =
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</p>"
+
+        elif cmd.startsWith("section:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[8..^1].strip()
+            results[index] &= "<section class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</section>"
 
         elif cmd.startsWith("div:"):
             if ClidPos != index - 1:
