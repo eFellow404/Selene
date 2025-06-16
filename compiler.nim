@@ -172,9 +172,24 @@ proc CssParser(line: string): string =
 """
         return result
 
+proc ClosingTags(tag: string): string =
+    result = "</" & tag & ">"
+
+proc OpenTags(tag: string, CLIDpos: int, Class: string, ID: string, length: int, cmd: string, index: int): string =
+    if CLIDpos != index -1:
+        Class = ""
+        ID = ""
+
+    let content = cmd
 
 
+        elif cmd.startsWith("/div:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
 
+            let content = cmd[5..^1].strip()
+            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
 
 proc parseLine(line: string): string =
     let commands = line.split(';').mapIt(it.strip())
@@ -223,61 +238,68 @@ proc parseLine(line: string): string =
         #closing tags
 
         elif cmd.startsWith("!hd"):
-            results[index] &= "</head>"
+            results[index] &= ClosingTags("header")
+
+        elif cmd.startsWith("!leg"):
+            results[index] &= ClosingTags("legend")
+
+        elif cmd.startsWith("!fieldset"):
+            results[index] &= ClosingTags("fieldset")
 
         elif cmd.startsWith("!ta"):
-            results[index] &= "</textarea>"
+            results[index] &= ClosingTags("textarea")
 
         elif cmd.startsWith("!label"):
-            results[index] &= "</label>"
-        
+            results[index] &= ClosingTags("label")
+
         elif cmd.startsWith("!opt"):
-            results[index] &= "</option>"
+            results[index] &= ClosingTags("option")
 
         elif cmd.startsWith("!sel"):
-            results[index] &= "</select>"
+            results[index] &= ClosingTags("select")
 
         elif cmd.startsWith("!in"):
-            results[index] &= "</input>"
+            results[index] &= ClosingTags("input")
 
         elif cmd.startsWith("!art"):
-            results[index] &= "</article>"
+            results[index] &= ClosingTags("article")
 
         elif cmd.startsWith("!form"):
-            results[index] &= "</form>"
+            results[index] &= ClosingTags("form")
 
         elif cmd.startsWith("!aside"):
-            results[index] &= "</aside>"
+            results[index] &= ClosingTags("aside")
 
         elif cmd.startsWith("!figure"):
-            results[index] &= "</figure>"
+            results[index] &= ClosingTags("figure")
 
         elif cmd.startsWith("!figcap"):
-            results[index] &= "</figcaption>"
+            results[index] &= ClosingTags("figcaption")
 
         elif cmd.startsWith("!sec"):
-            results[index] &= "</section>"
+            results[index] &= ClosingTags("section")
 
         elif cmd.startsWith("!bd"):
-            results[index] &= "</body>"
+            results[index] &= ClosingTags("body")
 
         elif cmd.startsWith("!hrd"):
-            results[index] &= "</header>"
+            results[index] &= ClosingTags("header")
 
         elif cmd.startsWith("!frd"):
-            results[index] &= "</footer>"
+            results[index] &= ClosingTags("footer")
 
         elif cmd.startsWith("!nav"):
-            results[index] &= "</nav>"
+            results[index] &= ClosingTags("nav")
 
         elif cmd.startsWith("!div"):
-            results[index] &= "</div>"
+            results[index] &= ClosingTags("div")
 
         elif cmd.startsWith("!ul"):
-            results[index] &= "</ul>"
+            results[index] &= ClosingTags("ul")
 
         elif cmd.startsWith("!ol"):
-            results[index] &= "</ol>"
+            results[index] &= ClosingTags("ol")
+
 
         # linking at the top of the document
 
@@ -302,6 +324,22 @@ proc parseLine(line: string): string =
 
             let content = cmd[5..^1].strip()
             results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+
+        elif cmd.startsWith("/leg:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[5..^1].strip()
+            results[index] &= "<legend class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+
+        elif cmd.startsWith("/fieldset:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[10..^1].strip()
+            results[index] &= "<fieldset class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
 
         elif cmd.startsWith("/label:"):
             if ClidPos != index - 1:
@@ -553,6 +591,28 @@ proc parseLine(line: string): string =
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</p>"
 
+        elif cmd.startsWith("legend:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[7..^1].strip()
+            results[index] &= "<legend class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</legend>"
+
+        elif cmd.startsWith("fieldset:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[9..^1].strip()
+            results[index] &= "<fieldset class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</fieldset>"
+
         elif cmd.startsWith("label:"):
             if ClidPos != index - 1:
                 CssClass = ""
@@ -581,7 +641,7 @@ proc parseLine(line: string): string =
                 IDClass = ""
 
             let content = cmd[4..^1].strip()
-            results[index] &= "<select class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            results[index] &= "<select class=\"" & CssClass & "\" id =\"" & IDClass & "\" name=\"" & content & "\">"
             let SourceEndPos = results.len - index - 1 # Use correct formula
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</select>"
@@ -707,6 +767,18 @@ proc parseLine(line: string): string =
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</a>"
 
+        elif cmd.startsWith("iframe:"):
+            clid = cmd[6..^1].strip()
+            let split = clid.split(':').mapIt(it.strip())
+            if split.len == 2:
+                let source = split[0]
+                let options = split[1]
+                results[index] &= "<iframe src=\"" & source & "\"  class=\"" & CssClass & "\" id =\"" & IDClass & "\"" & options & ">"
+                let SourceEndPos = results.len - index - 1 # Use correct formula
+                echo "SourceEndPos = ", SourceEndPos
+                results[SourceEndPos] &= "</iframe>"
+
+
         elif cmd.startsWith("btn:"):
             if ClidPos != index - 1:
                 CssClass = ""
@@ -769,7 +841,4 @@ proc main() =
     echo "Written output to ", outputFileCss
 
 
-
-
-if htmlMode:
-    main()
+main()
