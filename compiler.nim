@@ -28,7 +28,7 @@ proc CssParser(line: string): string =
 
     if line == "load preset":
         echo "preset loaded"
-        result &= line & """
+        result &= """
 /* === PRESET CSS CLASSES === */
 
 /* Text sizes */
@@ -175,21 +175,33 @@ proc CssParser(line: string): string =
 proc ClosingTags(tag: string): string =
     result = "</" & tag & ">"
 
-proc OpenTags(tag: string, CLIDpos: int, Class: string, ID: string, length: int, cmd: string, index: int): string =
-    if CLIDpos != index -1:
-        Class = ""
-        ID = ""
+proc OpenTags(tag: string, CLIDpos: int, Class: string, ID: string, prefixLen: int, cmd: string): string =
+    var classVal = Class
+    var idVal = ID
+    let content = cmd[prefixLen..^1].strip()
+    result = "<" & tag & " class=\"" & classVal & "\" id=\"" & idVal & "\">" & content 
 
-    let content = cmd
+proc processTag(tag: string, prefixLen: int, cmd: string, index: int, ClidPos: int, CssClass: string, IDClass: string, results: var seq[string]) =
+    var classVal = CssClass
+    var idVal = IDClass
+    if ClidPos != index - 1:
+        classVal = ""
+        idVal = ""
+    results[index] &= OpenTags(tag, ClidPos, classVal, idVal, prefixLen, cmd)
 
+proc SelfClosingTags(tag: string, CLIDpos: int, Class: string, ID: string, prefixLen: int, cmd: string, index: int, results: var seq[string]) =
+    var classVal = Class
+    var idVal = ID
 
-        elif cmd.startsWith("/div:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
+    if CLIDpos != index - 1:
+        classVal = ""
+        idVal = ""
 
-            let content = cmd[5..^1].strip()
-            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+    let content = cmd[prefixLen..^1].strip()
+    let EndPos = results.len - index - 1
+    results[index] = "<" & tag & " class=\"" & classVal & "\" id=\"" & idVal & "\">" & content
+    results[EndPos] = "</" & tag & ">"
+
 
 proc parseLine(line: string): string =
     let commands = line.split(';').mapIt(it.strip())
@@ -208,6 +220,17 @@ proc parseLine(line: string): string =
     for index, cmd in commands:
         if cmd.len == 0:
             continue
+
+        # reloud the page for quick developing
+
+        elif cmd.startsWith("load devtools"):
+            results[index] &= """ 
+        <script>
+  setInterval(() => {
+    location.reload();
+  }, 1000);
+    </script>
+            """
 
         # exitiing html mode
 
@@ -257,9 +280,6 @@ proc parseLine(line: string): string =
 
         elif cmd.startsWith("!sel"):
             results[index] &= ClosingTags("select")
-
-        elif cmd.startsWith("!in"):
-            results[index] &= ClosingTags("input")
 
         elif cmd.startsWith("!art"):
             results[index] &= ClosingTags("article")
@@ -317,121 +337,77 @@ proc parseLine(line: string): string =
         
         # Normal command processing
 
-        elif cmd.startsWith("/div:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
 
-            let content = cmd[5..^1].strip()
-            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+        elif cmd.startsWith("/div:"):
+            processTag("div", 5, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/leg:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[5..^1].strip()
-            results[index] &= "<legend class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("legend", 5, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/fieldset:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[10..^1].strip()
-            results[index] &= "<fieldset class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("fieldset", 10, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/label:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[7..^1].strip()
-            results[index] &= "<label class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("label", 7, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/opt:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[5..^1].strip()
-            results[index] &= "<option class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("option", 5, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/sel:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[5..^1].strip()
-            results[index] &= "<select class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("select", 5, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/ta:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<textarea class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("textarea", 4, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/in:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<input class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("input", 4, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/form:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[6..^1].strip()
-            results[index] &= "<form class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("form", 6, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/aside:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[6..^1].strip()
-            results[index] &= "<aside class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("aside", 6, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/figcap:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[8..^1].strip()
-            results[index] &= "<figcaption class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("figcaption", 8, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/figure:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[8..^1].strip()
-            results[index] &= "<figure class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("figure", 8, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/section:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[9..^1].strip()
-            results[index] &= "<section class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+            processTag("section", 9, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/article:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
+            processTag("article", 9, cmd, index, ClidPos, CssClass, IDClass, results)
 
-            let content = cmd[9..^1].strip()
-            results[index] &= "<article class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
+        elif cmd.startsWith("ul:"):
+            processTag("ul", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+
+        elif cmd.startsWith("ol:"):
+            processTag("ol", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+
+        elif cmd.startsWith("nav:"):
+            processTag("nav", 4, cmd, index, ClidPos, CssClass, IDClass, results)
+
+        elif cmd.startsWith("bd:"):
+            processTag("body", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+
+        elif cmd.startsWith("hd:"):
+            processTag("head", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+
+        elif cmd.startsWith("hrd:"):
+            processTag("header", 4, cmd, index, ClidPos, CssClass, IDClass, results)
+
+        elif cmd.startsWith("frd:"):
+            processTag("footer", 4, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("nl:"):
             let content = cmd[3..^1].strip()
             results[index] &= "<br>" & content
+
+        elif cmd.startsWith("in:"):
+            let content = cmd[3..^1].strip()
+            results[index] &= "<input" & content & ">"
 
         elif cmd.startsWith("hr:"):
             let content = cmd[3..^1].strip()
@@ -441,56 +417,6 @@ proc parseLine(line: string): string =
             let content = cmd[5..^1].strip()
             results[index] &= "<meta" & content & ">"
 
-        elif cmd.startsWith("ul:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[3..^1].strip()
-            results[index] &= "<ul class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-
-        elif cmd.startsWith("ol:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[3..^1].strip()
-            results[index] &= "<ol class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content    
-
-        elif cmd.startsWith("nav"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            results[index] &= "<nav class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
-
-        elif cmd.startsWith("bd"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            results[index] &= "<body class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
-
-        elif cmd.startsWith("hd"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            results[index] &= "<head class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
-
-        elif cmd.startsWith("hrd"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            results[index] &= "<header class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
-
-        elif cmd.startsWith("frd"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            results[index] &= "<footer class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
 
         elif cmd.startsWith("text:"):
             let textText = cmd[5..^1].strip()
@@ -513,259 +439,68 @@ proc parseLine(line: string): string =
         # firstly just the h1-6
 
         elif cmd.startsWith("h1:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<h1 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</h1>"
+            SelfClosingTags("h1", ClidPos, CssClass, IDClass, 3, cmd, index, results)
 
         elif cmd.startsWith("h2:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<h2 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</h2>"
+            SelfClosingTags("h2", ClidPos, CssClass, IDClass, 3, cmd, index, results)
 
         elif cmd.startsWith("h3:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<h3 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</h3>"
+            SelfClosingTags("h3", ClidPos, CssClass, IDClass, 3, cmd, index, results)
 
         elif cmd.startsWith("h4:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<h4 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</h4>"
+            SelfClosingTags("h4", ClidPos, CssClass, IDClass, 3, cmd, index, results)
 
         elif cmd.startsWith("h5:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<h5 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</h5>"
+            SelfClosingTags("h5", ClidPos, CssClass, IDClass, 3, cmd, index, results)
 
         elif cmd.startsWith("h6:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<h6 class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</h6>"
+            SelfClosingTags("h6", ClidPos, CssClass, IDClass, 3, cmd, index, results)
 
         #now the rest
 
-        elif cmd.startsWith("p:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
 
-            let content = cmd[2..^1].strip()
-            results[index] &= "<p class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</p>"
+        elif cmd.startsWith("p:"):
+            SelfClosingTags("p", ClidPos, CssClass, IDClass, 2, cmd, index, results)
 
         elif cmd.startsWith("legend:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[7..^1].strip()
-            results[index] &= "<legend class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</legend>"
+            SelfClosingTags("legend", ClidPos, CssClass, IDClass, 7, cmd, index, results)
 
         elif cmd.startsWith("fieldset:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
+            SelfClosingTags("fieldset", ClidPos, CssClass, IDClass, 9, cmd, index, results)
 
-            let content = cmd[9..^1].strip()
-            results[index] &= "<fieldset class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</fieldset>"
-
-        elif cmd.startsWith("label:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[6..^1].strip()
-            results[index] &= "<label class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</label>"
-
-        elif cmd.startsWith("opt:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<option class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</option>"
-
-        elif cmd.startsWith("sel:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<select class=\"" & CssClass & "\" id =\"" & IDClass & "\" name=\"" & content & "\">"
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</select>"
-
-        elif cmd.startsWith("ta:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[2..^1].strip()
-            results[index] &= "<textarea class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</textarea>"
-
-        elif cmd.startsWith("in:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[3..^1].strip()
-            results[index] &= "<input class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</input>"
+        elif cmd.startsWith("p:"):
+            SelfClosingTags("p", ClidPos, CssClass, IDClass, 2, cmd, index, results)
 
         elif cmd.startsWith("form:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[5..^1].strip()
-            results[index] &= "<form class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</form>"
+            SelfClosingTags("form", ClidPos, CssClass, IDClass, 5, cmd, index, results)
 
         elif cmd.startsWith("section:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[8..^1].strip()
-            results[index] &= "<section class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</section>"#
+            SelfClosingTags("section", ClidPos, CssClass, IDClass, 8, cmd, index, results)
 
         elif cmd.startsWith("figcap:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[7..^1].strip()
-            results[index] &= "<figcaption class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</figcaption>"
+            SelfClosingTags("figcaption", ClidPos, CssClass, IDClass, 7, cmd, index, results)
 
         elif cmd.startsWith("figure:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[7..^1].strip()
-            results[index] &= "<figure class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</figure>"
+            SelfClosingTags("figure", ClidPos, CssClass, IDClass, 7, cmd, index, results)
 
         elif cmd.startsWith("aside:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[8..^1].strip()
-            results[index] &= "<aside class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</aside>"
+            SelfClosingTags("aside", ClidPos, CssClass, IDClass, 6, cmd, index, results)
 
         elif cmd.startsWith("article:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[8..^1].strip()
-            results[index] &= "<article class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</article>"
+            SelfClosingTags("article", ClidPos, CssClass, IDClass, 8, cmd, index, results)
 
         elif cmd.startsWith("div:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            results[index] &= "<div class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</div>"
+            SelfClosingTags("div", ClidPos, CssClass, IDClass, 4, cmd, index, results)
 
         elif cmd.startsWith("title:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
+            SelfClosingTags("title", ClidPos, CssClass, IDClass, 6, cmd, index, results)
 
-            let content = cmd[6..^1].strip()
-            results[index] &= "<title class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</title>"
+        elif cmd.startsWith("btn:"):
+            SelfClosingTags("button", ClidPos, CssClass, IDClass, 4, cmd, index, results)
 
-        elif cmd.startsWith("source:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
+        elif cmd.startsWith("-:"):
+            SelfClosingTags("li", ClidPos, CssClass, IDClass, 2, cmd, index, results)
 
-            let source = cmd[7..^1].strip()
-            results[index] &= "<a href=\"" & source & "\"  class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</a>"
 
         elif cmd.startsWith("iframe:"):
             clid = cmd[6..^1].strip()
@@ -778,28 +513,133 @@ proc parseLine(line: string): string =
                 echo "SourceEndPos = ", SourceEndPos
                 results[SourceEndPos] &= "</iframe>"
 
+        elif cmd.startsWith("source:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
 
-        elif cmd.startsWith("btn:"):
+            let source = cmd[7..^1].strip()
+            results[index] &= "<a href=\"" & source & "\"  class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
+            let SourceEndPos = results.len - index - 1 # Use correct formula
+            echo "SourceEndPos = ", SourceEndPos
+            results[SourceEndPos] &= "</a>"
+
+        elif cmd.startsWith("ta:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let innerAndAttrs = cmd[3..^1].strip()
+            let parts = innerAndAttrs.split(';').mapIt(it.strip())
+
+            var textContent = ""
+            var placeholder = ""
+            var rows = ""
+            var cols = ""
+
+            if parts.len > 0:
+                textContent = parts[0]
+
+            for i in 1..<parts.len:
+                if parts[i].startsWith("placeholder="):
+                    placeholder = parts[i][12..^1]
+                elif parts[i].startsWith("rows="):
+                    rows = parts[i][5..^1]
+                elif parts[i].startsWith("cols="):
+                    cols = parts[i][5..^1]
+
+            results[index] &= "<textarea class=\"" & CssClass & "\" id=\"" & IDClass & "\""
+
+            if placeholder.len > 0:
+                results[index] &= " placeholder=\"" & placeholder & "\""
+            if rows.len > 0:
+                results[index] &= " rows=\"" & rows & "\""
+            if cols.len > 0:
+                results[index] &= " cols=\"" & cols & "\""
+
+            results[index] &= ">" & textContent
+
+            let SourceEndPos = results.len - index - 1
+            results[SourceEndPos] &= "</textarea>"
+
+
+        elif cmd.startsWith("label:"):
+            if ClidPos != index - 1:
+                CssClass = ""
+                IDClass = ""
+
+            let content = cmd[6..^1].strip()
+            let parts = content.split(';').mapIt(it.strip())
+
+            var targetId = ""
+            var labelText = ""
+            var formAttr = ""
+            var titleAttr = ""
+
+            if parts.len > 0:
+                let firstColon = parts[0].find(':')
+                if firstColon != -1:
+                    targetId = parts[0][0..<firstColon].strip()
+                    labelText = parts[0][firstColon+1..^1].strip()
+                else:
+                    labelText = parts[0]  # No 'for' value specified
+
+            for i in 1 ..< parts.len:
+                if parts[i].startsWith("form="):
+                    formAttr = parts[i][5..^1].strip()
+                elif parts[i].startsWith("title="):
+                    titleAttr = parts[i][6..^1].strip()
+
+            results[index] &= "<label class=\"" & CssClass & "\" id=\"" & IDClass & "\""
+
+            if targetId.len > 0:
+                results[index] &= " for=\"" & targetId & "\""
+            if formAttr.len > 0:
+                results[index] &= " form=\"" & formAttr & "\""
+            if titleAttr.len > 0:
+                results[index] &= " title=\"" & titleAttr & "\""
+
+            results[index] &= ">" & labelText
+
+            let ButtonEndPos = results.len - index - 1
+            results[ButtonEndPos] &= "</label>"
+
+
+        elif cmd.startsWith("sel:"):
             if ClidPos != index - 1:
                 CssClass = ""
                 IDClass = ""
 
             let content = cmd[4..^1]
-            results[index] &= "<button  class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let ButtonEndPos = results.len - index - 1 # Use correct formula
-            echo "ButtonEndPos = ", ButtonEndPos
-            results[ButtonEndPos] &= "</button>"
+            let colonIndex = content.find(':')
+            if colonIndex != -1:
+                let firstPart = content[0 ..< colonIndex]
+                let secondPart = content[colonIndex + 1 .. ^1]
+                # You can assign them like this:
+                let forSplit = [firstPart, secondPart]
 
-        elif cmd.startsWith("-:"):
+                results[index] &= "<select  class=\"" & CssClass & "\" id=\"" & IDClass & "\" name=\"" & forSplit[0].strip() & "\">" & forSplit[1]
+                let ButtonEndPos = results.len - index - 1 # Use correct formula
+                echo "ButtonEndPos = ", ButtonEndPos
+                results[ButtonEndPos] &= "</select>"
+
+        elif cmd.startsWith("opt:"):
             if ClidPos != index - 1:
                 CssClass = ""
                 IDClass = ""
 
-            let content = cmd[2..^1]
-            results[index] &= "<li  class=\"" & CssClass & "\" id =\"" & IDClass & "\">" & content
-            let ButtonEndPos = results.len - index - 1 # Use correct formula
-            echo "ButtonEndPos = ", ButtonEndPos
-            results[ButtonEndPos] &= "</li>"
+            let content = cmd[4..^1]
+            let colonIndex = content.find(':')
+            if colonIndex != -1:
+                let firstPart = content[0 ..< colonIndex]
+                let secondPart = content[colonIndex + 1 .. ^1]
+                # You can assign them like this:
+                let forSplit = [firstPart, secondPart]
+
+                results[index] &= "<option  class=\"" & CssClass & "\" id=\"" & IDClass & "\"" & forSplit[0].strip() & ">" & forSplit[1]
+                let ButtonEndPos = results.len - index - 1 # Use correct formula
+                echo "ButtonEndPos = ", ButtonEndPos
+                results[ButtonEndPos] &= "</option>"
 
         # debug
         echo "Command #" & $(index+1) & ": " & cmd
@@ -839,6 +679,9 @@ proc main() =
 
     writeFile(outputFileCss, join(outputLinesCss, "\n"))
     echo "Written output to ", outputFileCss
+
+    sleep(1000)
+    main()
 
 
 main()
