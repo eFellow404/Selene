@@ -202,8 +202,82 @@ proc SelfClosingTags(tag: string, CLIDpos: int, Class: string, ID: string, prefi
     results[index] = "<" & tag & " class=\"" & classVal & "\" id=\"" & idVal & "\">" & content
     results[EndPos] = "</" & tag & ">"
 
+proc button(Closes: bool, ClidPos: int, CssClass: var string, IDClass: var string, cmd: string, index: int, results: var seq[string]) =
+    if ClidPos != index - 1:
+        CssClass = ""
+        IDClass = ""
 
+    let content = cmd[4..^1].strip()
+    let parts = content.split(':').mapIt(it.strip())
 
+    var buttonType = ""
+    var buttonValue = ""
+    var buttonName = ""
+    var formAttr = ""
+    var titleAttr = ""
+    var disabled = false
+    var btnText = ""
+
+    for part in parts:
+        if part.startsWith("type="): buttonType = part[5..^1].strip()
+        elif part.startsWith("value="): buttonValue = part[6..^1].strip()
+        elif part.startsWith("name="): buttonName = part[5..^1].strip()
+        elif part.startsWith("form="): formAttr = part[5..^1].strip()
+        elif part.startsWith("title="): titleAttr = part[6..^1].strip()
+        elif part == "disabled": disabled = true
+        else: btnText = part
+
+    results[index] &= "<button"
+    if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
+    if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
+    if buttonType.len > 0: results[index] &= " type=\"" & buttonType & "\""
+    if buttonValue.len > 0: results[index] &= " value=\"" & buttonValue & "\""
+    if buttonName.len > 0: results[index] &= " name=\"" & buttonName & "\""
+    if formAttr.len > 0: results[index] &= " form=\"" & formAttr & "\""
+    if titleAttr.len > 0: results[index] &= " title=\"" & titleAttr & "\""
+    if disabled: results[index] &= " disabled"
+
+    if Closes:
+        let EndPos = results.len - index - 1
+        results[EndPos] &= ">" & btnText & "</button>"
+    else:
+        results[index] &= ">" & btnText
+
+proc form(Closes: bool, ClidPos: int, CssClass: var string, IDClass: var string, cmd: string, index: int, results: var seq[string]) =
+    if ClidPos != index - 1:
+        CssClass = ""
+        IDClass = ""
+
+    let content = cmd[5..^1].strip()
+    let parts = content.split(':').mapIt(it.strip())
+
+    var actionAttr = ""
+    var methodAttr = ""
+    var targetAttr = ""
+    var enctypeAttr = ""
+    var autocompleteAttr = ""
+
+    for part in parts:
+        if part.startsWith("action="): actionAttr = part[7..^1].strip()
+        elif part.startsWith("method="): methodAttr = part[7..^1].strip()
+        elif part.startsWith("target="): targetAttr = part[7..^1].strip()
+        elif part.startsWith("enctype="): enctypeAttr = part[8..^1].strip()
+        elif part.startsWith("autocomplete="): autocompleteAttr = part[13..^1].strip()
+
+    results[index] &= "<form"
+
+    if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
+    if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
+    if actionAttr.len > 0: results[index] &= " action=\"" & actionAttr & "\""
+    if methodAttr.len > 0: results[index] &= " method=\"" & methodAttr & "\""
+    if targetAttr.len > 0: results[index] &= " target=\"" & targetAttr & "\""
+    if enctypeAttr.len > 0: results[index] &= " enctype=\"" & enctypeAttr & "\""
+    if autocompleteAttr.len > 0: results[index] &= " autocomplete=\"" & autocompleteAttr & "\""
+
+    results[index] &= ">"
+    if Closes:
+        let closePos = results.len - index - 1
+        results[closePos] &= "</form>"
 
 proc parseLine(line: string): string =
     let commands = line.split(';').mapIt(it.strip())
@@ -262,66 +336,8 @@ proc parseLine(line: string): string =
 
         #closing tags
 
-        elif cmd.startsWith("!hd"):
-            results[index] &= ClosingTags("header")
-
-        elif cmd.startsWith("!leg"):
-            results[index] &= ClosingTags("legend")
-
-        elif cmd.startsWith("!fieldset"):
-            results[index] &= ClosingTags("fieldset")
-
-        elif cmd.startsWith("!ta"):
-            results[index] &= ClosingTags("textarea")
-
-        elif cmd.startsWith("!label"):
-            results[index] &= ClosingTags("label")
-
-        elif cmd.startsWith("!opt"):
-            results[index] &= ClosingTags("option")
-
-        elif cmd.startsWith("!sel"):
-            results[index] &= ClosingTags("select")
-
-        elif cmd.startsWith("!art"):
-            results[index] &= ClosingTags("article")
-
-        elif cmd.startsWith("!form"):
-            results[index] &= ClosingTags("form")
-
-        elif cmd.startsWith("!aside"):
-            results[index] &= ClosingTags("aside")
-
-        elif cmd.startsWith("!figure"):
-            results[index] &= ClosingTags("figure")
-
-        elif cmd.startsWith("!figcap"):
-            results[index] &= ClosingTags("figcaption")
-
-        elif cmd.startsWith("!sec"):
-            results[index] &= ClosingTags("section")
-
-        elif cmd.startsWith("!bd"):
-            results[index] &= ClosingTags("body")
-
-        elif cmd.startsWith("!hrd"):
-            results[index] &= ClosingTags("header")
-
-        elif cmd.startsWith("!frd"):
-            results[index] &= ClosingTags("footer")
-
-        elif cmd.startsWith("!nav"):
-            results[index] &= ClosingTags("nav")
-
-        elif cmd.startsWith("!div"):
-            results[index] &= ClosingTags("div")
-
-        elif cmd.startsWith("!ul"):
-            results[index] &= ClosingTags("ul")
-
-        elif cmd.startsWith("!ol"):
-            results[index] &= ClosingTags("ol")
-
+        elif cmd.startsWith("!"):
+            results[index] &= ClosingTags(cmd[1..^1])
 
         # linking at the top of the document
 
@@ -360,9 +376,6 @@ proc parseLine(line: string): string =
 
         elif cmd.startsWith("/ta:"):
             processTag("textarea", 4, cmd, index, ClidPos, CssClass, IDClass, results)
-
-        elif cmd.startsWith("/form:"):
-            processTag("form", 6, cmd, index, ClidPos, CssClass, IDClass, results)
 
         elif cmd.startsWith("/aside:"):
             processTag("aside", 6, cmd, index, ClidPos, CssClass, IDClass, results)
@@ -585,6 +598,10 @@ proc parseLine(line: string): string =
             echo "SourceEndPos = ", SourceEndPos
             results[SourceEndPos] &= "</a>"
 
+
+# closing commands that need special attributes
+
+
         elif cmd.startsWith("ta:"):
             if ClidPos != index - 1:
                 CssClass = ""
@@ -729,39 +746,9 @@ proc parseLine(line: string): string =
 
 
         elif cmd.startsWith("form:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[5..^1].strip()
-            let parts = content.split(':').mapIt(it.strip())
-
-            var actionAttr = ""
-            var methodAttr = ""
-            var targetAttr = ""
-            var enctypeAttr = ""
-            var autocompleteAttr = ""
-
-            for part in parts:
-                if part.startsWith("action="): actionAttr = part[7..^1].strip()
-                elif part.startsWith("method="): methodAttr = part[7..^1].strip()
-                elif part.startsWith("target="): targetAttr = part[7..^1].strip()
-                elif part.startsWith("enctype="): enctypeAttr = part[8..^1].strip()
-                elif part.startsWith("autocomplete="): autocompleteAttr = part[13..^1].strip()
-
-            results[index] &= "<form"
-
-            if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-            if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-            if actionAttr.len > 0: results[index] &= " action=\"" & actionAttr & "\""
-            if methodAttr.len > 0: results[index] &= " method=\"" & methodAttr & "\""
-            if targetAttr.len > 0: results[index] &= " target=\"" & targetAttr & "\""
-            if enctypeAttr.len > 0: results[index] &= " enctype=\"" & enctypeAttr & "\""
-            if autocompleteAttr.len > 0: results[index] &= " autocomplete=\"" & autocompleteAttr & "\""
-
-            results[index] &= ">"
-            let closePos = results.len - index - 1
-            results[closePos] &= "</form>"
+            form(true, CLidPos, CssClass, IDClass, cmd, index, results)
+        elif cmd.startsWith("/form:"):
+            form(false, CLidPos, CssClass, IDClass, cmd, index, results)
 
         elif cmd.startsWith("fieldset:"):
             if ClidPos != index - 1:
@@ -783,43 +770,10 @@ proc parseLine(line: string): string =
             results[closePos] &= "</fieldset>"
 
         elif cmd.startsWith("btn:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
+            button(true, ClidPos, CssClass, IDClass, cmd, index, results)
 
-            let content = cmd[4..^1].strip()
-            let parts = content.split(':').mapIt(it.strip())
-
-            var buttonType = ""
-            var buttonValue = ""
-            var buttonName = ""
-            var formAttr = ""
-            var titleAttr = ""
-            var disabled = false
-            var btnText = ""
-
-            for part in parts:
-                if part.startsWith("type="): buttonType = part[5..^1].strip()
-                elif part.startsWith("value="): buttonValue = part[6..^1].strip()
-                elif part.startsWith("name="): buttonName = part[5..^1].strip()
-                elif part.startsWith("form="): formAttr = part[5..^1].strip()
-                elif part.startsWith("title="): titleAttr = part[6..^1].strip()
-                elif part == "disabled": disabled = true
-                else: btnText = part
-
-            results[index] &= "<button"
-            if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-            if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-            if buttonType.len > 0: results[index] &= " type=\"" & buttonType & "\""
-            if buttonValue.len > 0: results[index] &= " value=\"" & buttonValue & "\""
-            if buttonName.len > 0: results[index] &= " name=\"" & buttonName & "\""
-            if formAttr.len > 0: results[index] &= " form=\"" & formAttr & "\""
-            if titleAttr.len > 0: results[index] &= " title=\"" & titleAttr & "\""
-            if disabled: results[index] &= " disabled"
-
-            results[index] &= ">" & btnText & "</button>"
-
-
+        elif cmd.startsWith("/btn"):
+            button(false, ClidPos, CssClass, IDClass, cmd, index, results)
 
         # debug
         echo "Command #" & $(index+1) & ": " & cmd
