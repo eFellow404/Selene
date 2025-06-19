@@ -14,270 +14,234 @@ var JavaScriptMode = false
 proc CssParser(line: string): string =
     var result = ""
 
-    if line != "load preset":
-        # Add the current line exactly as it was
-        result &= line & "\n"
-        return result
-
-    if line == "exit css":
+    if line == "exit css;":
         # come out of css mode
         cssModeStarted = false;
         htmlMode = true 
         JavaScriptMode = false
-        return 
+        
 
-    if line == "load preset":
+    elif line == "load preset":
         echo "preset loaded"
         result &= """
-/* === PRESET CSS CLASSES === */
+            /* === PRESET CSS CLASSES === */
 
-/* Text sizes */
-.text-xs       { font-size: 0.5rem; }
-.text-small    { font-size: 0.8rem; }
-.text-normal   { font-size: 1rem; }
-.text-large    { font-size: 1.5rem; }
-.text-xl       { font-size: 2rem; }
+            /* Text sizes */
+            .text-xs       { font-size: 0.5rem; }
+            .text-small    { font-size: 0.8rem; }
+            .text-normal   { font-size: 1rem; }
+            .text-large    { font-size: 1.5rem; }
+            .text-xl       { font-size: 2rem; }
 
-/* Text styles */
-.text-bold     { font-weight: bold; }
-.text-italic   { font-style: italic; }
-.text-center   { text-align: center; }
-.text-left     { text-align: left; }
-.text-right    { text-align: right; }
+            /* Text styles */
+            .text-bold     { font-weight: bold; }
+            .text-italic   { font-style: italic; }
+            .text-center   { text-align: center; }
+            .text-left     { text-align: left; }
+            .text-right    { text-align: right; }
 
-/* Colors */
-.text-black  { color: #\n000000; }
-.text-grey{ color: #777777; }
-.text-blue   { color: #007BFF; }
-.text-red   { color: #FF4136; }
-.text-green  { color: #2ECC40; }
-.text-white  { color: #FFFFFF; }
-.text-purple {color: #10002B;}
+            /* Colors */
+            .text-black  { color: #\n000000; }
+            .text-grey{ color: #777777; }
+            .text-blue   { color: #007BFF; }
+            .text-red   { color: #FF4136; }
+            .text-green  { color: #2ECC40; }
+            .text-white  { color: #FFFFFF; }
+            .text-purple {color: #10002B;}
 
-/* Backgrounds */
-.bg-white    { background-color: #FFFFFF; }
-.bg-grey       { background-color: darkgrey; }
-.bg-blue    { background-color: #007BFF; }
-.bg-green    { background-color: #2ECC40; }
-.bg-red     { background-color: #FF4136; }
-.bg-black { background-color: black;}
+            /* Backgrounds */
+            .bg-white    { background-color: #FFFFFF; }
+            .bg-grey       { background-color: darkgrey; }
+            .bg-blue    { background-color: #007BFF; }
+            .bg-green    { background-color: #2ECC40; }
+            .bg-red     { background-color: #FF4136; }
+            .bg-black { background-color: black;}
 
-/* Borders */
-.border        { border: 1px solid #ccc; padding: 0.5rem; }
-.border-round  { border-radius: 0.5rem; border: 1px solid #ccc; padding: 0.5rem; }
-.no-border     { border: none; }
+            /* Borders */
+            .border        { border: 1px solid #ccc; padding: 0.5rem; }
+            .border-round  { border-radius: 0.5rem; border: 1px solid #ccc; padding: 0.5rem; }
+            .no-border     { border: none; }
 
-/* Padding & Margin */
-.p-1           { padding: 0.5rem; }
-.p-2           { padding: 1rem; }
-.p-3           { padding: 1.5rem; }
+            /* Padding & Margin */
+            .p-1           { padding: 0.5rem; }
+            .p-2           { padding: 1rem; }
+            .p-3           { padding: 1.5rem; }
 
-.m-1           { margin: 0.5rem; }
-.m-2           { margin: 1rem; }
-.m-3           { margin: 1.5rem; }
+            .m-1           { margin: 0.5rem; }
+            .m-2           { margin: 1rem; }
+            .m-3           { margin: 1.5rem; }
 
-/* Display */
-.inline        { display: inline; }
-.block         { display: block; }
-.flex          { display: flex; }
-.flex-center   { display: flex; justify-content: center; align-items: center; }
-.hidden        { display: none; }
+            /* Display */
+            .inline        { display: inline; }
+            .block         { display: block; }
+            .flex          { display: flex; }
+            .flex-center   { display: flex; justify-content: center; align-items: center; }
+            .hidden        { display: none; }
 
-/* Widths */
-.w-100         { width: 100%; }
-.w-90          { width: 90%; }
-.w-80         { width: 80%; }
-.w-70          { width: 70%; }
-.w-60         { width: 60%; }
-.w-50          { width: 50%; }
-.w-40         { width: 40%; }
-.w-30          { width: 30%; }
-.w-20         { width: 20%; }
-.w-10          { width: 10%; }
-.w-auto        { width: auto; }
+            /* Widths */
+            .w-100         { width: 100%; }
+            .w-90          { width: 90%; }
+            .w-80         { width: 80%; }
+            .w-70          { width: 70%; }
+            .w-60         { width: 60%; }
+            .w-50          { width: 50%; }
+            .w-40         { width: 40%; }
+            .w-30          { width: 30%; }
+            .w-20         { width: 20%; }
+            .w-10          { width: 10%; }
+            .w-auto        { width: auto; }
 
-/* Heights */
-.h-100         { height: 100%; }
-.h-90          { height: 90%; }
-.h-80         { height: 80%; }
-.h-70          { height: 70%; }
-.h-60         { height: 60%; }
-.h-50          { height: 50%; }
-.h-40         { height: 40%; }
-.h-30          { height: 30%; }
-.h-20         { height: 20%; }
-.h-10          { height: 10%; }
-.h-auto        { height: auto; }
+            /* Heights */
+            .h-100         { height: 100%; }
+            .h-90          { height: 90%; }
+            .h-80         { height: 80%; }
+            .h-70          { height: 70%; }
+            .h-60         { height: 60%; }
+            .h-50          { height: 50%; }
+            .h-40         { height: 40%; }
+            .h-30          { height: 30%; }
+            .h-20         { height: 20%; }
+            .h-10          { height: 10%; }
+            .h-auto        { height: auto; }
 
-/* Buttons */
-.btn           { display: inline-block; padding: 0.5rem 1rem; font-size: 1rem; border: none; border-radius: 0.3rem; cursor: pointer; text-align: center; }
-.btn-primary   { background-color: #007BFF; color: white; }
-.btn-success   { background-color: #2ECC40; color: white; }
-.btn-danger    { background-color: #FF4136; color: white; }
-.btn-outline   { background-color: transparent; border: 2px solid #007BFF; color: #007BFF; }
+            /* Buttons */
+            .btn           { display: inline-block; padding: 0.5rem 1rem; font-size: 1rem; border: none; border-radius: 0.3rem; cursor: pointer; text-align: center; }
+            .btn-primary   { background-color: #007BFF; color: white; }
+            .btn-success   { background-color: #2ECC40; color: white; }
+            .btn-danger    { background-color: #FF4136; color: white; }
+            .btn-outline   { background-color: transparent; border: 2px solid #007BFF; color: #007BFF; }
 
-/* Images */
-.img-responsive { max-width: 100%; height: auto; }
+            /* Images */
+            .img-responsive { max-width: 100%; height: auto; }
 
-/* centering */
-.center-h {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.center-v {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.center-vh {
-  left: 50%;
-  top: 50%;
-  position: absolute;
-  transform: translate(-50%, -50%);
-}
-.text-top {
-  display: flex;
-  align-items: flex-start;
-}
+            /* centering */
+            .center-h {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            }
+            .center-v {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            }
+            .center-vh {
+            left: 50%;
+            top: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            }
+            .text-top {
+            display: flex;
+            align-items: flex-start;
+            }
 
-.text-center-v {
-  display: flex;
-  align-items: center;
-}
+            .text-center-v {
+            display: flex;
+            align-items: center;
+            }
 
-.text-bottom {
-  display: flex;
-  align-items: flex-end;
-}
+            .text-bottom {
+            display: flex;
+            align-items: flex-end;
+            }
 
-.text-center-vh {
-  display: flex;
-  justify-content: center; /* horizontal centering */
-  align-items: center;     /* vertical centering */
-}
+            .text-center-vh {
+            display: flex;
+            justify-content: center; /* horizontal centering */
+            align-items: center;     /* vertical centering */
+            }
 
-/* if you want the whole thing to be completely top bottom or side */
+            /* if you want the whole thing to be completely top bottom or side */
 
-.top { top: 0%; }
+            .top { top: 0%; }
 
-.bottom { bottom: 0%; }
+            .bottom { bottom: 0%; }
 
-.left { left: 0%;}
+            .left { left: 0%;}
 
-.right { right: 0%; }
+            .right { right: 0%; }
 
 
-/* === END PRESET === */
-"""
+            /* === END PRESET === */
+            """
         return result
+
+    elif line != "exit css":
+        if line != "load preset":
+            # Add the current line exactly as it was
+            result &= line & "\n"
+            return result
 
 proc ClosingTags(tag: string): string =
     result = "</" & tag & ">"
 
-proc OpenTags(tag: string, CLIDpos: int, Class: string, ID: string, prefixLen: int, cmd: string): string =
+proc processTag(tag: string, CLIDpos: int, Class: string, ID: string, prefixLen: int, cmd: string, index: int, results: var seq[string], Closes: bool) =
     var classVal = Class
     var idVal = ID
-    let content = cmd[prefixLen..^1].strip()
-    result = "<" & tag & " class=\"" & classVal & "\" id=\"" & idVal & "\">" & content 
-
-proc processTag(tag: string, prefixLen: int, cmd: string, index: int, ClidPos: int, CssClass: string, IDClass: string, results: var seq[string]) =
-    var classVal = CssClass
-    var idVal = IDClass
-    if ClidPos != index - 1:
-        classVal = ""
-        idVal = ""
-    results[index] &= OpenTags(tag, ClidPos, classVal, idVal, prefixLen, cmd)
-
-proc SelfClosingTags(tag: string, CLIDpos: int, Class: string, ID: string, prefixLen: int, cmd: string, index: int, results: var seq[string]) =
-    var classVal = Class
-    var idVal = ID
-
+    
     if CLIDpos != index - 1:
         classVal = ""
         idVal = ""
-
+    
     let content = cmd[prefixLen..^1].strip()
-    let EndPos = results.len - index - 1
-    results[index] = "<" & tag & " class=\"" & classVal & "\" id=\"" & idVal & "\">" & content
-    results[EndPos] = "</" & tag & ">"
-
-proc button(Closes: bool, ClidPos: int, CssClass: var string, IDClass: var string, cmd: string, index: int, results: var seq[string]) =
-    if ClidPos != index - 1:
-        CssClass = ""
-        IDClass = ""
-
-    let content = cmd[4..^1].strip()
-    let parts = content.split(':').mapIt(it.strip())
-
-    var buttonType = ""
-    var buttonValue = ""
-    var buttonName = ""
-    var formAttr = ""
-    var titleAttr = ""
-    var disabled = false
-    var btnText = ""
-
-    for part in parts:
-        if part.startsWith("type="): buttonType = part[5..^1].strip()
-        elif part.startsWith("value="): buttonValue = part[6..^1].strip()
-        elif part.startsWith("name="): buttonName = part[5..^1].strip()
-        elif part.startsWith("form="): formAttr = part[5..^1].strip()
-        elif part.startsWith("title="): titleAttr = part[6..^1].strip()
-        elif part == "disabled": disabled = true
-        else: btnText = part
-
-    results[index] &= "<button"
-    if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-    if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-    if buttonType.len > 0: results[index] &= " type=\"" & buttonType & "\""
-    if buttonValue.len > 0: results[index] &= " value=\"" & buttonValue & "\""
-    if buttonName.len > 0: results[index] &= " name=\"" & buttonName & "\""
-    if formAttr.len > 0: results[index] &= " form=\"" & formAttr & "\""
-    if titleAttr.len > 0: results[index] &= " title=\"" & titleAttr & "\""
-    if disabled: results[index] &= " disabled"
-
+    var parts: seq[string] = @[]
+    var current = ""
+    var escapeNext = false
+    
+    # Parse content with escape handling
+    for c in content:
+        if escapeNext:
+            current.add(c)
+            escapeNext = false
+        elif c == '$':
+            escapeNext = true
+        elif c == ':':
+            parts.add(current.strip())
+            current = ""
+        else:
+            current.add(c)
+    
+    if current.len > 0:
+        parts.add(current.strip())
+    
+    # Extract attributes and content
+    var attributes: seq[(string, string)] = @[]
+    var tagContent = ""
+    
+    for i, part in parts:
+        if part.contains('='):
+            let kv = part.split('=', 1)
+            let k = kv[0].strip()
+            let v = if kv.len > 1: kv[1].strip() else: ""
+            attributes.add((k, v))
+        elif i == parts.high:
+            tagContent = part
+        else:
+            # Treat as flag attribute (e.g., "required")
+            attributes.add((part, part))
+    
+    # Build opening tag
+    var tagStr = "<" & tag
+    
+    if classVal.len > 0:
+        tagStr &= " class=\"" & classVal & "\""
+    if idVal.len > 0:
+        tagStr &= " id=\"" & idVal & "\""
+    
+    for (k, v) in attributes:
+        if k == v:  # Flag attribute
+            tagStr &= " " & k
+        else:
+            tagStr &= " " & k & "=\"" & v & "\""
+    
+    tagStr &= ">"
+    
+    # Set results
+    let endPos = results.len - index - 1
+    results[index] = tagStr & tagContent
     if Closes:
-        let EndPos = results.len - index - 1
-        results[EndPos] &= ">" & btnText & "</button>"
-    else:
-        results[index] &= ">" & btnText
-
-proc form(Closes: bool, ClidPos: int, CssClass: var string, IDClass: var string, cmd: string, index: int, results: var seq[string]) =
-    if ClidPos != index - 1:
-        CssClass = ""
-        IDClass = ""
-
-    let content = cmd[5..^1].strip()
-    let parts = content.split(':').mapIt(it.strip())
-
-    var actionAttr = ""
-    var methodAttr = ""
-    var targetAttr = ""
-    var enctypeAttr = ""
-    var autocompleteAttr = ""
-
-    for part in parts:
-        if part.startsWith("action="): actionAttr = part[7..^1].strip()
-        elif part.startsWith("method="): methodAttr = part[7..^1].strip()
-        elif part.startsWith("target="): targetAttr = part[7..^1].strip()
-        elif part.startsWith("enctype="): enctypeAttr = part[8..^1].strip()
-        elif part.startsWith("autocomplete="): autocompleteAttr = part[13..^1].strip()
-
-    results[index] &= "<form"
-
-    if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-    if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-    if actionAttr.len > 0: results[index] &= " action=\"" & actionAttr & "\""
-    if methodAttr.len > 0: results[index] &= " method=\"" & methodAttr & "\""
-    if targetAttr.len > 0: results[index] &= " target=\"" & targetAttr & "\""
-    if enctypeAttr.len > 0: results[index] &= " enctype=\"" & enctypeAttr & "\""
-    if autocompleteAttr.len > 0: results[index] &= " autocomplete=\"" & autocompleteAttr & "\""
-
-    results[index] &= ">"
-    if Closes:
-        let closePos = results.len - index - 1
-        results[closePos] &= "</form>"
+        results[endPos] = "</" & tag & ">"
 
 proc parseLine(line: string): string =
     let commands = line.split(';').mapIt(it.strip())
@@ -355,65 +319,82 @@ proc parseLine(line: string): string =
         
         # Normal command processing
 
-
         elif cmd.startsWith("/div:"):
-            processTag("div", 5, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("div", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
 
-        elif cmd.startsWith("/leg:"):
-            processTag("legend", 5, cmd, index, ClidPos, CssClass, IDClass, results)
-
-        elif cmd.startsWith("/fieldset:"):
-            processTag("fieldset", 10, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/meta:"):
+            processTag("meta", ClidPos, CssClass, IDClass, 6, cmd, index, results, false)
 
         elif cmd.startsWith("/label:"):
-            processTag("label", 7, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("label", ClidPos, CssClass, IDClass, 7, cmd, index, results, false)
 
         elif cmd.startsWith("/opt:"):
-            processTag("option", 5, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("option", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
+
+        elif cmd.startsWith("/btn:"):
+            processTag("btn", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
+
+        elif cmd.startsWith("/form:"):
+            processTag("form", ClidPos, CssClass, IDClass, 6, cmd, index, results, false)
+
+        elif cmd.startsWith("/leg:"):
+            processTag("legend", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
+
+        elif cmd.startsWith("/fieldset:"):
+            processTag("fieldset", ClidPos, CssClass, IDClass, 10, cmd, index, results, false)
+
+        elif cmd.startsWith("/opt:"):
+            processTag("option", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
 
         elif cmd.startsWith("/sel:"):
-            processTag("select", 5, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("select", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
 
         elif cmd.startsWith("/ta:"):
-            processTag("textarea", 4, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("textarea", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
 
         elif cmd.startsWith("/aside:"):
-            processTag("aside", 6, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("aside", ClidPos, CssClass, IDClass, 6, cmd, index, results, false)
 
         elif cmd.startsWith("/figcap:"):
-            processTag("figcaption", 8, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("figcaption", ClidPos, CssClass, IDClass, 8, cmd, index, results, false)
 
         elif cmd.startsWith("/figure:"):
-            processTag("figure", 8, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("figure", ClidPos, CssClass, IDClass, 8, cmd, index, results, false)
 
         elif cmd.startsWith("/section:"):
-            processTag("section", 9, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("section", ClidPos, CssClass, IDClass, 9, cmd, index, results, false)
 
         elif cmd.startsWith("/article:"):
-            processTag("article", 9, cmd, index, ClidPos, CssClass, IDClass, results)
+            processTag("article", ClidPos, CssClass, IDClass, 9, cmd, index, results, false)
 
-        elif cmd.startsWith("ul:"):
-            processTag("ul", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/ul:"):
+            processTag("ul", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
 
-        elif cmd.startsWith("ol:"):
-            processTag("ol", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/ol:"):
+            processTag("ol", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
 
-        elif cmd.startsWith("nav:"):
-            processTag("nav", 4, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/nav:"):
+            processTag("nav", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
 
-        elif cmd.startsWith("bd:"):
-            processTag("body", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/bd:"):
+            processTag("body", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
 
-        elif cmd.startsWith("hd:"):
-            processTag("head", 3, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/hd:"):
+            processTag("head", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
 
-        elif cmd.startsWith("hrd:"):
-            processTag("header", 4, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/hrd:"):
+            processTag("header", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
 
-        elif cmd.startsWith("frd:"):
-            processTag("footer", 4, cmd, index, ClidPos, CssClass, IDClass, results)
+        elif cmd.startsWith("/frd:"):
+            processTag("footer", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
 
-        elif cmd.startsWith("nl:"):
+        elif cmd.startsWith("/ta:"):
+            processTag("footer", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
+
+        elif cmd.startsWith("/sel:"):
+            processTag("footer", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
+ 
+        if cmd.startsWith("nl:"):
             let content = cmd[3..^1].strip()
             results[index] &= "<br>" & content
 
@@ -468,42 +449,13 @@ proc parseLine(line: string): string =
 
             results[index] &= ">"
 
-        elif cmd.startsWith("meta:"):
-        # meta tags are self-closing, no content or closing tag
-            let content = cmd[5..^1].strip()
-            let parts = content.split(':').mapIt(it.strip())
-
-            var metaName = ""
-            var metaContent = ""
-            var metaCharset = ""
-            var metaHttpEquiv = ""
-
-            for part in parts:
-                if part.startsWith("name="): metaName = part[5..^1].strip()
-                elif part.startsWith("content="): metaContent = part[8..^1].strip()
-                elif part.startsWith("charset="): metaCharset = part[8..^1].strip()
-                elif part.startsWith("http-equiv="): metaHttpEquiv = part[10..^1].strip()
-
-            results[index] &= "<meta"
-
-            if metaCharset.len > 0:
-                results[index] &= " charset=\"" & metaCharset & "\""
-            else:
-                if metaName.len > 0: results[index] &= " name=\"" & metaName & "\""
-                if metaContent.len > 0: results[index] &= " content=\"" & metaContent & "\""
-                if metaHttpEquiv.len > 0: results[index] &= " http-equiv=\"" & metaHttpEquiv & "\""
-
-            results[index] &= ">"
-
-
-
         elif cmd.startsWith("hr:"):
             let content = cmd[3..^1].strip()
             results[index] &= "<hr>" & content
 
-        elif cmd.startsWith("text:"):
-            let textText = cmd[5..^1].strip()
-            results[index] &= textText
+        elif cmd.startsWith("#"):
+            let textText = cmd[1..^1].strip()
+            results[index] &= "<!--" & textText & "-->"
 
 
         elif cmd.startsWith("img:"):
@@ -513,68 +465,79 @@ proc parseLine(line: string): string =
                 IDClass = ""
 
             results[index] &= "<img src=\"" & imgSrc & "\" class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
-
-        elif cmd.startsWith("+"):
-            results[index] &= cmd[1..^1]
         
         # now onto the freaky ones (they need closing tags)
 
         # firstly just the h1-6
 
         elif cmd.startsWith("h1:"):
-            SelfClosingTags("h1", ClidPos, CssClass, IDClass, 3, cmd, index, results)
+            processTag("h1", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
 
         elif cmd.startsWith("h2:"):
-            SelfClosingTags("h2", ClidPos, CssClass, IDClass, 3, cmd, index, results)
+            processTag("h2", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
 
         elif cmd.startsWith("h3:"):
-            SelfClosingTags("h3", ClidPos, CssClass, IDClass, 3, cmd, index, results)
+            processTag("h3", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
 
         elif cmd.startsWith("h4:"):
-            SelfClosingTags("h4", ClidPos, CssClass, IDClass, 3, cmd, index, results)
+            processTag("h4", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
 
         elif cmd.startsWith("h5:"):
-            SelfClosingTags("h5", ClidPos, CssClass, IDClass, 3, cmd, index, results)
+            processTag("h5", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
 
         elif cmd.startsWith("h6:"):
-            SelfClosingTags("h6", ClidPos, CssClass, IDClass, 3, cmd, index, results)
+            processTag("h6", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
 
-        #now the rest
+        elif cmd.startsWith("opt:"):
+            processTag("option", ClidPos, CssClass, IDClass, 4, cmd, index, results, true)
 
+        elif cmd.startsWith("fieldset:"):
+            processTag("fieldset", ClidPos, CssClass, IDClass, 9, cmd, index, results, true)
+
+        elif cmd.startsWith("ta:"):
+            processTag("ta", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
+
+        elif cmd.startsWith("label:"):
+            processTag("label", ClidPos, CssClass, IDClass, 6, cmd, index, results, true)
+
+        elif cmd.startsWith("btn:"):
+            processTag("btn", ClidPos, CssClass, IDClass, 5, cmd, index, results, true)
+
+        elif cmd.startsWith("form:"):
+            processTag("form", ClidPos, CssClass, IDClass, 5, cmd, index, results, true)
 
         elif cmd.startsWith("p:"):
-            SelfClosingTags("p", ClidPos, CssClass, IDClass, 2, cmd, index, results)
+            processTag("p", ClidPos, CssClass, IDClass, 2, cmd, index, results, true)
 
         elif cmd.startsWith("legend:"):
-            SelfClosingTags("legend", ClidPos, CssClass, IDClass, 7, cmd, index, results)
-
-        elif cmd.startsWith("p:"):
-            SelfClosingTags("p", ClidPos, CssClass, IDClass, 2, cmd, index, results)
+            processTag("legend", ClidPos, CssClass, IDClass, 7, cmd, index, results, true)
 
         elif cmd.startsWith("section:"):
-            SelfClosingTags("section", ClidPos, CssClass, IDClass, 8, cmd, index, results)
+            processTag("section", ClidPos, CssClass, IDClass, 8, cmd, index, results, true)
 
         elif cmd.startsWith("figcap:"):
-            SelfClosingTags("figcaption", ClidPos, CssClass, IDClass, 7, cmd, index, results)
+            processTag("figcaption", ClidPos, CssClass, IDClass, 7, cmd, index, results, true)
 
         elif cmd.startsWith("figure:"):
-            SelfClosingTags("figure", ClidPos, CssClass, IDClass, 7, cmd, index, results)
+            processTag("figure", ClidPos, CssClass, IDClass, 7, cmd, index, results, true)
 
         elif cmd.startsWith("aside:"):
-            SelfClosingTags("aside", ClidPos, CssClass, IDClass, 6, cmd, index, results)
+            processTag("aside", ClidPos, CssClass, IDClass, 6, cmd, index, results, true)
 
         elif cmd.startsWith("article:"):
-            SelfClosingTags("article", ClidPos, CssClass, IDClass, 8, cmd, index, results)
+            processTag("article", ClidPos, CssClass, IDClass, 8, cmd, index, results, true)
 
         elif cmd.startsWith("div:"):
-            SelfClosingTags("div", ClidPos, CssClass, IDClass, 4, cmd, index, results)
+            processTag("div", ClidPos, CssClass, IDClass, 4, cmd, index, results, true)
 
         elif cmd.startsWith("title:"):
-            SelfClosingTags("title", ClidPos, CssClass, IDClass, 6, cmd, index, results)
+            processTag("title", ClidPos, CssClass, IDClass, 6, cmd, index, results, true)
 
         elif cmd.startsWith("-:"):
-            SelfClosingTags("li", ClidPos, CssClass, IDClass, 2, cmd, index, results)
+            processTag("li", ClidPos, CssClass, IDClass, 2, cmd, index, results, true)
 
+        elif cmd.startsWith("sel:"):
+            processTag("sel", ClidPos, CssClass, IDClass, 4, cmd, index, results, true)
 
         elif cmd.startsWith("iframe:"):
             clid = cmd[6..^1].strip()
@@ -600,180 +563,6 @@ proc parseLine(line: string): string =
 
 
 # closing commands that need special attributes
-
-
-        elif cmd.startsWith("ta:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let innerAndAttrs = cmd[3..^1].strip()
-            let parts = innerAndAttrs.split(':').mapIt(it.strip()) # array based on spliiting it on colons
-            var textContent = ""
-            var placeholder = ""
-            var rows = ""
-            var cols = ""
-
-            for i in 0..<parts.len:
-                if parts[i].startsWith("placeholder="):
-                    placeholder = parts[i][12..^1]
-                elif parts[i].startsWith("rows="):
-                    rows = parts[i][5..^1]
-                elif parts[i].startsWith("cols="):
-                    cols = parts[i][5..^1]
-                else:
-                    textContent = parts[i][0..^1]
-
-            results[index] &= "<textarea class=\"" & CssClass & "\" id=\"" & IDClass & "\""
-
-            if placeholder.len > 0:
-                results[index] &= " placeholder=\"" & placeholder & "\""
-            if rows.len > 0:
-                results[index] &= " rows=\"" & rows & "\""
-            if cols.len > 0:
-                results[index] &= " cols=\"" & cols & "\""
-
-            results[index] &= ">" & textContent
-
-            let SourceEndPos = results.len - index - 1
-            results[SourceEndPos] &= "</textarea>"
-
-
-        elif cmd.startsWith("label:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[6..^1].strip()
-            let parts = content.split(':').mapIt(it.strip())
-
-            var targetId = ""
-            var labelText = ""
-            var formAttr = ""
-            var titleAttr = ""
-
-            for i in 0 ..< parts.len:
-                if parts[i].startsWith("form="):
-                    formAttr = parts[i][5..^1].strip()
-                elif parts[i].startsWith("title="):
-                    titleAttr = parts[i][6..^1].strip()
-                elif parts[i].startsWith("for="):
-                    targetID = parts[i][4..^1].strip()
-                else:
-                    labelText = parts[i][0..^1]
-
-            results[index] &= "<label class=\"" & CssClass & "\" id=\"" & IDClass & "\""
-
-            if targetId.len > 0:
-                results[index] &= " for=\"" & targetId & "\""
-            if formAttr.len > 0:
-                results[index] &= " form=\"" & formAttr & "\""
-            if titleAttr.len > 0:
-                results[index] &= " title=\"" & titleAttr & "\""
-
-            results[index] &= ">" & labelText
-
-            let ButtonEndPos = results.len - index - 1
-            results[ButtonEndPos] &= "</label>"
-
-
-        elif cmd.startsWith("sel:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[4..^1].strip()
-            let parts = content.split(':').mapIt(it.strip())
-
-            var nameAttr = ""
-            var formAttr = ""
-            var titleAttr = ""
-            var requiredAttr = ""
-
-            for part in parts:
-                if part.startsWith("name="):
-                    nameAttr = part[5..^1].strip()
-                elif part.startsWith("form="):
-                    formAttr = part[5..^1].strip()
-                elif part.startsWith("title="):
-                    titleAttr = part[6..^1].strip()
-                elif part == "required":
-                    requiredAttr = "required"
-
-            results[index] &= "<select"
-
-            if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-            if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-            if nameAttr.len > 0: results[index] &= " name=\"" & nameAttr & "\""
-            if formAttr.len > 0: results[index] &= " form=\"" & formAttr & "\""
-            if titleAttr.len > 0: results[index] &= " title=\"" & titleAttr & "\""
-            if requiredAttr.len > 0: results[index] &= " " & requiredAttr
-
-            results[index] &= ">"
-            
-            let selectEndPos = results.len - index - 1
-            results[selectEndPos] &= "</select>"
-
-
-        elif cmd.startsWith("option:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[7..^1].strip()
-            let parts = content.split(':').mapIt(it.strip())
-
-            var valueAttr = ""
-            var labelAttr = ""
-            var optionText = ""
-
-            for part in parts:
-                if part.startsWith("value="):
-                    valueAttr = part[6..^1].strip()
-                elif part.startsWith("label="):
-                    labelAttr = part[6..^1].strip()
-                else:
-                    optionText = part
-
-            results[index] &= "<option"
-
-            if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-            if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-            if valueAttr.len > 0: results[index] &= " value=\"" & valueAttr & "\""
-            if labelAttr.len > 0: results[index] &= " label=\"" & labelAttr & "\""
-
-            results[index] &= ">" & optionText & "</option>"
-
-
-        elif cmd.startsWith("form:"):
-            form(true, CLidPos, CssClass, IDClass, cmd, index, results)
-        elif cmd.startsWith("/form:"):
-            form(false, CLidPos, CssClass, IDClass, cmd, index, results)
-
-        elif cmd.startsWith("fieldset:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[9..^1].strip()
-            let legendText = content  # optional, plain text legend
-
-            results[index] &= "<fieldset"
-            if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-            if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-            results[index] &= ">"
-
-            if legendText.len > 0:
-                results[index] &= "<legend>" & legendText & "</legend>"
-
-            let closePos = results.len - index - 1
-            results[closePos] &= "</fieldset>"
-
-        elif cmd.startsWith("btn:"):
-            button(true, ClidPos, CssClass, IDClass, cmd, index, results)
-
-        elif cmd.startsWith("/btn"):
-            button(false, ClidPos, CssClass, IDClass, cmd, index, results)
 
         # debug
         echo "Command #" & $(index+1) & ": " & cmd
@@ -814,8 +603,8 @@ proc main() =
     writeFile(outputFileCss, join(outputLinesCss, "\n"))
     echo "Written output to ", outputFileCss
 
-    sleep(1000)
-    main()
+    # sleep(1000)
+    # main()
 
 
 main()
