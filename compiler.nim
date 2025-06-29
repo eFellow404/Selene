@@ -247,9 +247,6 @@ proc parseLine(line: string): string =
     let commands = line.split(';').mapIt(it.strip())
     var results = newSeq[string](100)   # Force 100 slots to be safe
     var clid = ""
-    var clidpos = 0
-    var class = ""
-    var id = ""
     var ClidPos = 0
     var CssClass = ""
     var IDClass = ""
@@ -319,135 +316,12 @@ proc parseLine(line: string): string =
         
         # Normal command processing
 
-        elif cmd.startsWith("/div:"):
-            processTag("div", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/meta:"):
-            processTag("meta", ClidPos, CssClass, IDClass, 6, cmd, index, results, false)
-
-        elif cmd.startsWith("/label:"):
-            processTag("label", ClidPos, CssClass, IDClass, 7, cmd, index, results, false)
-
-        elif cmd.startsWith("/opt:"):
-            processTag("option", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/btn:"):
-            processTag("btn", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/form:"):
-            processTag("form", ClidPos, CssClass, IDClass, 6, cmd, index, results, false)
-
-        elif cmd.startsWith("/leg:"):
-            processTag("legend", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/fieldset:"):
-            processTag("fieldset", ClidPos, CssClass, IDClass, 10, cmd, index, results, false)
-
-        elif cmd.startsWith("/opt:"):
-            processTag("option", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/sel:"):
-            processTag("select", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/ta:"):
-            processTag("textarea", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
-
-        elif cmd.startsWith("/aside:"):
-            processTag("aside", ClidPos, CssClass, IDClass, 6, cmd, index, results, false)
-
-        elif cmd.startsWith("/figcap:"):
-            processTag("figcaption", ClidPos, CssClass, IDClass, 8, cmd, index, results, false)
-
-        elif cmd.startsWith("/figure:"):
-            processTag("figure", ClidPos, CssClass, IDClass, 8, cmd, index, results, false)
-
-        elif cmd.startsWith("/section:"):
-            processTag("section", ClidPos, CssClass, IDClass, 9, cmd, index, results, false)
-
-        elif cmd.startsWith("/article:"):
-            processTag("article", ClidPos, CssClass, IDClass, 9, cmd, index, results, false)
-
-        elif cmd.startsWith("/ul:"):
-            processTag("ul", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
-
-        elif cmd.startsWith("/ol:"):
-            processTag("ol", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
-
-        elif cmd.startsWith("/nav:"):
-            processTag("nav", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/bd:"):
-            processTag("body", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
-
-        elif cmd.startsWith("/hd:"):
-            processTag("head", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
-
-        elif cmd.startsWith("/hrd:"):
-            processTag("header", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/frd:"):
-            processTag("footer", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
-
-        elif cmd.startsWith("/ta:"):
-            processTag("footer", ClidPos, CssClass, IDClass, 4, cmd, index, results, false)
-
-        elif cmd.startsWith("/sel:"):
-            processTag("footer", ClidPos, CssClass, IDClass, 5, cmd, index, results, false)
+        elif cmd.startsWith("/"):
+            processTag( cmd[1..^1], ClidPos, CssClass, IDClass, cmd.len, cmd, index, results, false)
  
         if cmd.startsWith("nl:"):
             let content = cmd[3..^1].strip()
             results[index] &= "<br>" & content
-
-        elif cmd.startsWith("in:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let content = cmd[6..^1].strip()
-            let parts = content.split(':').mapIt(it.strip())
-
-            var inputType = ""
-            var inputName = ""
-            var inputValue = ""
-            var inputPlaceholder = ""
-            var inputForm = ""
-            var inputDisabled = false
-            var inputRequired = false
-            var inputReadonly = false
-            var inputMin = ""
-            var inputMax = ""
-            var inputStep = ""
-
-            for part in parts:
-                if part.startsWith("type="): inputType = part[5..^1].strip()
-                elif part.startsWith("name="): inputName = part[5..^1].strip()
-                elif part.startsWith("value="): inputValue = part[6..^1].strip()
-                elif part.startsWith("placeholder="): inputPlaceholder = part[12..^1].strip()
-                elif part.startsWith("form="): inputForm = part[5..^1].strip()
-                elif part == "disabled": inputDisabled = true
-                elif part == "required": inputRequired = true
-                elif part == "readonly": inputReadonly = true
-                elif part.startsWith("min="): inputMin = part[4..^1].strip()
-                elif part.startsWith("max="): inputMax = part[4..^1].strip()
-                elif part.startsWith("step="): inputStep = part[5..^1].strip()
-
-            results[index] &= "<input"
-
-            if CssClass.len > 0: results[index] &= " class=\"" & CssClass & "\""
-            if IDClass.len > 0: results[index] &= " id=\"" & IDClass & "\""
-            if inputType.len > 0: results[index] &= " type=\"" & inputType & "\""
-            if inputName.len > 0: results[index] &= " name=\"" & inputName & "\""
-            if inputValue.len > 0: results[index] &= " value=\"" & inputValue & "\""
-            if inputPlaceholder.len > 0: results[index] &= " placeholder=\"" & inputPlaceholder & "\""
-            if inputForm.len > 0: results[index] &= " form=\"" & inputForm & "\""
-            if inputMin.len > 0: results[index] &= " min=\"" & inputMin & "\""
-            if inputMax.len > 0: results[index] &= " max=\"" & inputMax & "\""
-            if inputStep.len > 0: results[index] &= " step=\"" & inputStep & "\""
-            if inputDisabled: results[index] &= " disabled"
-            if inputRequired: results[index] &= " required"
-            if inputReadonly: results[index] &= " readonly"
-
-            results[index] &= ">"
 
         elif cmd.startsWith("hr:"):
             let content = cmd[3..^1].strip()
@@ -488,7 +362,7 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("h6:"):
             processTag("h6", ClidPos, CssClass, IDClass, 3, cmd, index, results, true)
 
-        elif cmd.startsWith("opt:"):
+        elif cmd.startsWith("option:"):
             processTag("option", ClidPos, CssClass, IDClass, 4, cmd, index, results, true)
 
         elif cmd.startsWith("fieldset:"):
@@ -500,8 +374,8 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("label:"):
             processTag("label", ClidPos, CssClass, IDClass, 6, cmd, index, results, true)
 
-        elif cmd.startsWith("btn:"):
-            processTag("btn", ClidPos, CssClass, IDClass, 5, cmd, index, results, true)
+        elif cmd.startsWith("button:"):
+            processTag("button", ClidPos, CssClass, IDClass, 5, cmd, index, results, true)
 
         elif cmd.startsWith("form:"):
             processTag("form", ClidPos, CssClass, IDClass, 5, cmd, index, results, true)
@@ -533,11 +407,14 @@ proc parseLine(line: string): string =
         elif cmd.startsWith("title:"):
             processTag("title", ClidPos, CssClass, IDClass, 6, cmd, index, results, true)
 
-        elif cmd.startsWith("-:"):
+        elif cmd.startsWith("li:"):
             processTag("li", ClidPos, CssClass, IDClass, 2, cmd, index, results, true)
 
-        elif cmd.startsWith("sel:"):
-            processTag("sel", ClidPos, CssClass, IDClass, 4, cmd, index, results, true)
+        elif cmd.startsWith("select:"):
+            processTag("select", ClidPos, CssClass, IDClass, 4, cmd, index, results, true)
+
+        elif cmd.startsWith("source:"):
+            processTag("source", ClidPos, CssClass, IDClass, 4, cmd, index, results, true)
 
         elif cmd.startsWith("iframe:"):
             clid = cmd[6..^1].strip()
@@ -549,17 +426,6 @@ proc parseLine(line: string): string =
                 let SourceEndPos = results.len - index - 1 # Use correct formula
                 echo "SourceEndPos = ", SourceEndPos
                 results[SourceEndPos] &= "</iframe>"
-
-        elif cmd.startsWith("source:"):
-            if ClidPos != index - 1:
-                CssClass = ""
-                IDClass = ""
-
-            let source = cmd[7..^1].strip()
-            results[index] &= "<a href=\"" & source & "\"  class=\"" & CssClass & "\" id =\"" & IDClass & "\">"
-            let SourceEndPos = results.len - index - 1 # Use correct formula
-            echo "SourceEndPos = ", SourceEndPos
-            results[SourceEndPos] &= "</a>"
 
 
 # closing commands that need special attributes
